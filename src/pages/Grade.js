@@ -114,7 +114,9 @@ function Grade(prop) {
       });
   }, []);
 
-  console.log(currentScore.points["test1-0"]);
+  const sum = Object.values(currentScore.points).reduce((prev, curr) => {
+    return prev + +(curr.point || 0);
+  }, 0);
   return gradeInfo === null || !gradeInfo === {} ? (
     <h1>Error</h1>
   ) : (
@@ -235,7 +237,9 @@ function Grade(prop) {
                     합계
                   </TableCell>
                   <TableCell align="right">{gradeInfo.totalPoints}</TableCell>
-                  <TableCell align="right"></TableCell>
+                  <TableCell align="right">
+                    {sum} ({Math.round((sum / gradeInfo.totalPoints) * 100)}%)
+                  </TableCell>
                   <TableCell align="center"></TableCell>
                 </StyledSumTableRow>
               </TableBody>
