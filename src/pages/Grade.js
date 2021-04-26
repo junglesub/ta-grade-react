@@ -11,6 +11,7 @@ import {
 import { withStyles } from "@material-ui/core/styles";
 import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
+import { Prompt } from "react-router";
 import { v1 as uuidv1 } from "uuid";
 import { firebaseApp } from "../lib/firebaseApp";
 
@@ -45,9 +46,10 @@ function Grade(prop) {
   const [currentScore, setCurrentScore] = useState(defaultCurrentScore);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState([]);
+  const [needSave, setNeedSave] = useState(false);
 
   const changeHakbun = (e, nextValue) => {
-    setCurrentScore((state) => ({ ...state, hakbun: nextValue }));
+    setCurrentScore((state) => ({ ...defaultCurrentScore, hakbun: nextValue }));
     if (Object.keys(studentInfo).includes(nextValue)) {
       setCurrentScore((state) => ({ ...state, ...studentInfo[nextValue] }));
     }
@@ -56,6 +58,7 @@ function Grade(prop) {
   console.log(currentScore);
 
   const changeScorePointState = (pointId, point) => {
+    setNeedSave(true);
     setCurrentScore((state) => {
       const newState = { ...state };
       newState.points[pointId] = {
@@ -66,6 +69,7 @@ function Grade(prop) {
   };
   const changeScoreDeductState = (pointId, deductReason) => {
     // e.preventDefault();
+    setNeedSave(true);
     const newObject = { ...currentScore };
     if (deductReason === null) {
       newObject.points[pointId] = null;
@@ -112,7 +116,10 @@ function Grade(prop) {
       });
   }, [prop.match.params.gradeID]);
 
-  const resetHandler = () => setCurrentScore(defaultCurrentScore);
+  const resetHandler = () => {
+    setNeedSave(false);
+    setCurrentScore(defaultCurrentScore);
+  };
 
   const saveHandler = async () => {
     setSaving(true);
@@ -152,6 +159,8 @@ function Grade(prop) {
         .collection("grades")
         .doc(prop.match.params.gradeID)
         .set(gradeInfo);
+
+      setNeedSave(false);
     } catch (e) {
       console.error(e);
       setErrors((state) => [...state, e.toString()]);
@@ -167,6 +176,10 @@ function Grade(prop) {
     <h1>Error</h1>
   ) : (
     <div className="Grade">
+      <Prompt
+        when={needSave}
+        message="You have unsaved changes, are you sure you want to leave?"
+      />
       <div>
         {errors.map((error) => (
           <Alert key={error} severity="error">
