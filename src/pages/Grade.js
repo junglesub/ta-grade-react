@@ -15,6 +15,24 @@ import { firebaseApp } from "../lib/firebaseApp";
 
 const options = ["22000462"];
 
+const StyledTableRow = withStyles((theme) => ({
+  root: {
+    "&:nth-of-type(odd)": {
+      backgroundColor: theme.palette.action.hover,
+    },
+  },
+}))(TableRow);
+const StyledSumTableRow = withStyles((theme) => ({
+  root: {
+    "&": {
+      backgroundColor: "lightyellow",
+    },
+    "& > *": {
+      fontWeight: "bold",
+    },
+  },
+}))(TableRow);
+
 function Grade(prop) {
   const defaultCurrentScore = {
     hakbun: "",
@@ -96,25 +114,7 @@ function Grade(prop) {
       });
   }, []);
 
-  const StyledTableRow = withStyles((theme) => ({
-    root: {
-      "&:nth-of-type(odd)": {
-        backgroundColor: theme.palette.action.hover,
-      },
-    },
-  }))(TableRow);
-  const StyledSumTableRow = withStyles((theme) => ({
-    root: {
-      "&": {
-        backgroundColor: "lightyellow",
-      },
-      "& > *": {
-        fontWeight: "bold",
-      },
-    },
-  }))(TableRow);
-
-  console.log(currentScore);
+  console.log(currentScore.points["test1-0"]);
   return gradeInfo === null || !gradeInfo === {} ? (
     <h1>Error</h1>
   ) : (
@@ -186,29 +186,36 @@ function Grade(prop) {
                           ]}
                           fullWidth
                           freeSolo
-                          // filterOptions={(options, params) => {
-                          //   const filtered = createFilterOptions(
-                          //     options.filter(
-                          //       (option) =>
-                          //         option.deduct !== undefined &&
-                          //         option.desc !== undefined
-                          //     ),
-                          //     params
-                          //   );
+                          filterOptions={(options, params) => {
+                            const filtered = createFilterOptions()(
+                              options.filter(
+                                (option) =>
+                                  option.deduct !== undefined &&
+                                  option.desc !== undefined
+                              ),
+                              params
+                            );
+                            console.log(filtered);
 
-                          //   return filtered;
-                          // }}
+                            return filtered;
+                          }}
                           getOptionLabel={(option) =>
                             `[${option.deduct}] ${option.desc}`
                           }
-                          value={currentScore.points[point.pointId]}
+                          value={
+                            !currentScore.points[point.pointId] ||
+                            !currentScore.points[point.pointId].desc
+                              ? null
+                              : currentScore.points[point.pointId]
+                          }
                           onChange={(e, newValue) => {
                             console.log(newValue);
                             if (typeof newValue === "string") {
                               changeScoreDeductState(point.pointId, {
                                 deduct:
                                   (currentScore.points[point.pointId] &&
-                                    currentScore.point[point.pointId].deduct) ||
+                                    currentScore.points[point.pointId]
+                                      .deduct) ||
                                   0,
                                 desc: newValue,
                               });
