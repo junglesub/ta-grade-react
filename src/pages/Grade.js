@@ -10,14 +10,12 @@ import {
   TextField,
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
-import { Autocomplete, createFilterOptions } from "@material-ui/lab";
+import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
 import { v1 as uuidv1 } from "uuid";
 import { firebaseApp } from "../lib/firebaseApp";
 
 import "./Grade.css";
-
-const options = ["22000462"];
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
@@ -46,15 +44,13 @@ function Grade(prop) {
   const [gradeInfo, setGradeInfo] = useState({});
   const [studentInfo, setStudentInfo] = useState({});
   const [currentScore, setCurrentScore] = useState(defaultCurrentScore);
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState([]);
 
-  const changeCurrentScoreState = (e) => {
-    if (e.target.name === "hakbun") {
-      setCurrentScore((state) => ({ ...state, hakbun: e.target.value }));
-    } else {
-      setCurrentScore((state) => ({
-        score: { [e.target.name]: e.target.value },
-        ...state,
-      }));
+  const changeHakbun = (e, nextValue) => {
+    setCurrentScore((state) => ({ ...state, hakbun: nextValue }));
+    if (Object.keys(studentInfo).includes(nextValue)) {
+      setCurrentScore((state) => ({ ...state, ...studentInfo[nextValue] }));
     }
   };
 
@@ -119,6 +115,51 @@ function Grade(prop) {
 
   const resetHandler = () => setCurrentScore(defaultCurrentScore);
 
+  const saveHandler = async () => {
+    setSaving(true);
+    try {
+      // Save Student's data
+      await firebaseApp
+        .firestore()
+        .collection("grades")
+        .doc(prop.match.params.gradeID)
+        .collection("students")
+        .doc(currentScore.hakbun)
+        .set(currentScore);
+
+      // Update Deduct Information and counts and update.
+      const newGradeInfo = [...gradeInfo.points];
+      console.log(newGradeInfo);
+      Object.keys(currentScore.points).map((pointId) => {
+        const index = newGradeInfo.findIndex(
+          (point) => point.pointId === pointId
+        );
+        console.log(currentScore.points[pointId]);
+        newGradeInfo[index].deducts = [...(newGradeInfo[index].deducts || [])];
+        newGradeInfo[index].deducts.find(
+          (deduct) => deduct.uuid === currentScore.points[pointId].uuid
+        ) === undefined &&
+          newGradeInfo[index].deducts.push(currentScore.points[pointId]);
+      });
+      setGradeInfo((state) => ({
+        ...state,
+        points: newGradeInfo,
+      }));
+      console.log(newGradeInfo);
+
+      await firebaseApp
+        .firestore()
+        .collection("grades")
+        .doc(prop.match.params.gradeID)
+        .set(gradeInfo);
+    } catch (e) {
+      console.error(e);
+      setErrors((state) => [...state, e.toString()]);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const sum = Object.values(currentScore.points).reduce((prev, curr) => {
     return prev + +(curr.point || 0);
   }, 0);
@@ -127,23 +168,31 @@ function Grade(prop) {
   ) : (
     <div className="Grade">
       <div>
+        {errors.map((error) => (
+          <Alert key={error} severity="error">
+            {error}
+          </Alert>
+        ))}
+      </div>
+      <div>
         <h1>{gradeInfo.gradeName}</h1>
       </div>
       <Autocomplete
         id="hakbun"
-        options={options}
+        options={Object.keys(studentInfo)}
         freeSolo
         // getOptionLabel={(option) => option.title}
         style={{ width: 300 }}
         renderInput={(params) => (
           <TextField
             {...params}
-            name="hakbun"
             label="학번"
-            onChange={changeCurrentScoreState}
+            // onChange={changeCurrentScoreState}
             variant="outlined"
           />
         )}
+        clearOnBlur
+        onChange={changeHakbun}
       />
       <div>
         <form noValidate autoComplete="off">
@@ -196,6 +245,7 @@ function Grade(prop) {
                           ]}
                           fullWidth
                           freeSolo
+                          clearOnBlur
                           filterOptions={(options, params) => {
                             const filtered = createFilterOptions()(
                               options.filter(
@@ -234,7 +284,9 @@ function Grade(prop) {
                             } else {
                               changeScoreDeductState(point.pointId, {
                                 ...newValue,
-                                point: point.point - newValue.deduct,
+                                point:
+                                  point.point -
+                                  ((newValue && newValue.deduct) || 0),
                               });
                             }
                             // setTest(newValue);
@@ -264,9 +316,10 @@ function Grade(prop) {
               초기화
             </Button>
             <Button
-              disabled={!currentScore.hakbun}
+              disabled={!currentScore.hakbun || saving}
               variant="contained"
               color="primary"
+              onClick={saveHandler}
             >
               저장
             </Button>
