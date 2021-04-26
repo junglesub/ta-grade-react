@@ -1,12 +1,16 @@
 import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import React from "react";
+import { useContext } from "react";
 import { useState } from "react";
 import engHanguel from "../lib/engHanguel";
 import { firebaseApp } from "../lib/firebaseApp";
+import { userStore } from "../stores/userStore";
 
 import "./GradeNew.css";
 
-function GradeNew() {
+function GradeNew(props) {
+  const { currentUser } = useContext(userStore).state;
+
   const [gradeName, setGradeName] = useState({
     kor: "",
     eng: "",
@@ -40,6 +44,7 @@ function GradeNew() {
     newValue = [
       ...newValue.slice(0, index),
       {
+        pointId: `${gradeName.eng}-${index}`,
         ...newValue[index],
         [type]: target.value,
       },
@@ -84,12 +89,21 @@ function GradeNew() {
     return content;
   };
   const saveToFirebase = () => {
-    firebaseApp.firestore().collection("grades").doc(gradeName.eng).set({
-      gradeName: gradeName.kor,
-      owner: firebaseApp.auth().currentUser.uid,
-      totalPoints,
-      points: gradePoints,
-    });
+    firebaseApp
+      .firestore()
+      .collection("grades")
+      .doc(gradeName.eng)
+      .set({
+        gradeName: gradeName.kor,
+        owner: currentUser.uid,
+        ownerEmail: currentUser.email,
+        totalPoints,
+        points: gradePoints,
+      })
+      .then(() => {
+        props.history.push(`/grade/${gradeName.eng}`);
+      })
+      .catch((err) => console.error(err));
   };
 
   console.log(gradePoints);
@@ -97,6 +111,9 @@ function GradeNew() {
     <div className="GradeNew">
       <form noValidate autoComplete="off">
         <div>
+          <p>
+            Current User {currentUser.email} ({currentUser.uid})
+          </p>
           <div>
             <TextField
               variant="outlined"
