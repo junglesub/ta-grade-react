@@ -226,10 +226,7 @@ function Grade(prop) {
                             } else {
                               changeScoreDeductState(point.pointId, {
                                 ...newValue,
-                                point:
-                                  (currentScore.points[point.pointId] &&
-                                    currentScore.points[point.pointId].point) ||
-                                  point.point - newValue.deduct,
+                                point: point.point - newValue.deduct,
                               });
                             }
                             // setTest(newValue);
