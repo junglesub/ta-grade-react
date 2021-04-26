@@ -1,8 +1,8 @@
 import "./App.css";
 
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import Home from "./components/Home";
-import Grade from "./components/Grade";
+import Home from "./pages/Home";
+import Grade from "./pages/Grade";
 import { CssBaseline, Paper } from "@material-ui/core";
 import GradeNew from "./pages/GradeNew";
 

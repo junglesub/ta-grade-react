@@ -1,7 +1,7 @@
 {
   "grade1": {
     "gradeName": "Test Grading 1",
-    "creator": "22000462@handong.edu",
+    "creator": "22000462@handong.edu", // replaced to uid
     "totalPoints": 10,
     "points": [
       {
