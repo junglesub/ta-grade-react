@@ -10,12 +10,10 @@ function Home() {
         variant="contained"
         color="primary"
         onClick={() => {
-          firebaseApp
-            .auth()
-            .signInWithPopup(new firebase.auth.GoogleAuthProvider());
+          firebaseApp.auth().signOut();
         }}
       >
-        Login
+        Logout
       </Button>
     </div>
   );

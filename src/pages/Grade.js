@@ -1,6 +1,5 @@
 import {
   Button,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -111,7 +110,7 @@ function Grade(prop) {
         console.error(err);
         setGradeInfo(null);
       });
-  }, []);
+  }, [prop.match.params.gradeID]);
 
   const resetHandler = () => setCurrentScore(defaultCurrentScore);
 
@@ -140,6 +139,7 @@ function Grade(prop) {
           (deduct) => deduct.uuid === currentScore.points[pointId].uuid
         ) === undefined &&
           newGradeInfo[index].deducts.push(currentScore.points[pointId]);
+        return null;
       });
       setGradeInfo((state) => ({
         ...state,

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { firebaseApp } from "../lib/firebaseApp";
 
 import { userStore } from "../stores/userStore";
@@ -32,7 +32,7 @@ function GetData() {
     return () => {
       unsubAuth();
     };
-  }, []);
+  }, [currentUser, dispatch]);
 
   return null;
 }

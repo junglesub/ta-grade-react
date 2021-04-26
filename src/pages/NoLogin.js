@@ -6,7 +6,7 @@ import { firebaseApp } from "../lib/firebaseApp";
 function NoLogin() {
   return (
     <div className="NoLogin">
-      <h1>소프트웨어 입문 TA 대기열</h1>
+      <h1>소프트웨어 입문 TA 채점</h1>
       <h3>로그인해주세요</h3>
       <p>
         <em>한동대 이메일만 사용 가능합니다.</em>
