@@ -177,6 +177,12 @@ function Grade(prop) {
     }
   };
 
+  if (needSave) {
+    window.onbeforeunload = () => true;
+  } else {
+    window.onbeforeunload = undefined;
+  }
+
   const sum = Object.values(currentScore.points).reduce((prev, curr) => {
     return prev + +(curr.point || 0);
   }, 0);
