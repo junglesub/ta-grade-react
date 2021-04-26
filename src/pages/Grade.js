@@ -61,7 +61,7 @@ function Grade(prop) {
     setCurrentScore((state) => {
       const newState = { ...state };
       newState.points[pointId] = {
-        deduct: point,
+        point: point,
       };
       return newState;
     });
@@ -168,7 +168,7 @@ function Grade(prop) {
                           value={
                             // currentScore.points[point.pointId].point
                             (currentScore.points[point.pointId] &&
-                              currentScore.points[point.pointId].deduct) ||
+                              currentScore.points[point.pointId].point) ||
                             ""
                           }
                         />
@@ -180,7 +180,7 @@ function Grade(prop) {
                           id={`${point.pointId}-deductmsg`}
                           options={[
                             {
-                              deduct: 0.2,
+                              point: 0.2,
                               desc: "hello",
                             },
                           ]}
@@ -190,7 +190,7 @@ function Grade(prop) {
                             const filtered = createFilterOptions()(
                               options.filter(
                                 (option) =>
-                                  option.deduct !== undefined &&
+                                  option.point !== undefined &&
                                   option.desc !== undefined
                               ),
                               params
@@ -200,7 +200,7 @@ function Grade(prop) {
                             return filtered;
                           }}
                           getOptionLabel={(option) =>
-                            `[${option.deduct}] ${option.desc}`
+                            `[${option.point}] ${option.desc}`
                           }
                           value={
                             !currentScore.points[point.pointId] ||
@@ -212,10 +212,9 @@ function Grade(prop) {
                             console.log(newValue);
                             if (typeof newValue === "string") {
                               changeScoreDeductState(point.pointId, {
-                                deduct:
+                                point:
                                   (currentScore.points[point.pointId] &&
-                                    currentScore.points[point.pointId]
-                                      .deduct) ||
+                                    currentScore.points[point.pointId].point) ||
                                   0,
                                 desc: newValue,
                               });
@@ -236,7 +235,7 @@ function Grade(prop) {
                     합계
                   </TableCell>
                   <TableCell align="right">{gradeInfo.totalPoints}</TableCell>
-                  <TableCell align="right">0</TableCell>
+                  <TableCell align="right"></TableCell>
                   <TableCell align="center"></TableCell>
                 </StyledSumTableRow>
               </TableBody>
