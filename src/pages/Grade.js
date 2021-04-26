@@ -35,12 +35,11 @@ const StyledSumTableRow = withStyles((theme) => ({
   },
 }))(TableRow);
 
-const defaultCurrentScore = {
-  hakbun: "",
-  points: {},
-};
-
 function Grade(prop) {
+  const defaultCurrentScore = {
+    hakbun: "",
+    points: {},
+  };
   const [gradeInfo, setGradeInfo] = useState({});
   const [studentInfo, setStudentInfo] = useState({});
   const [currentScore, setCurrentScore] = useState(defaultCurrentScore);
@@ -49,8 +48,10 @@ function Grade(prop) {
   const [needSave, setNeedSave] = useState(false);
 
   const changeHakbun = (e, nextValue) => {
+    console.log(defaultCurrentScore);
     setCurrentScore((state) => ({ ...defaultCurrentScore, hakbun: nextValue }));
     if (Object.keys(studentInfo).includes(nextValue)) {
+      console.log("Found User");
       setCurrentScore((state) => ({ ...state, ...studentInfo[nextValue] }));
     }
   };
@@ -59,6 +60,7 @@ function Grade(prop) {
 
   const changeScorePointState = (pointId, point) => {
     setNeedSave(true);
+    console.log("changeScorePointState-setcurrentScore");
     setCurrentScore((state) => {
       const newState = { ...state };
       newState.points[pointId] = {
@@ -78,6 +80,7 @@ function Grade(prop) {
         ...deductReason,
       };
     }
+    console.log("changeScoreDeductState-setcurrentScore");
     setCurrentScore(newObject);
   };
 
@@ -118,6 +121,7 @@ function Grade(prop) {
 
   const resetHandler = () => {
     setNeedSave(false);
+    console.log("resetHandler-setcurrentScore");
     setCurrentScore(defaultCurrentScore);
   };
 
@@ -125,6 +129,10 @@ function Grade(prop) {
     setSaving(true);
     try {
       // Save Student's data
+      setStudentInfo((state) => ({
+        ...state,
+        [currentScore.hakbun]: currentScore,
+      }));
       await firebaseApp
         .firestore()
         .collection("grades")
@@ -188,7 +196,10 @@ function Grade(prop) {
         ))}
       </div>
       <div>
-        <h1>{gradeInfo.gradeName}</h1>
+        <h1>
+          {gradeInfo.gradeName}
+          {needSave ? "*" : ""}
+        </h1>
       </div>
       <Autocomplete
         id="hakbun"
