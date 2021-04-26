@@ -203,7 +203,7 @@ function Grade(prop) {
                             return filtered;
                           }}
                           getOptionLabel={(option) =>
-                            `[${option.deduct}] ${option.desc}`
+                            `(-${option.deduct}) ${option.desc}`
                           }
                           value={
                             !currentScore.points[point.pointId] ||
