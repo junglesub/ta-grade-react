@@ -1,0 +1,7 @@
+.Grade .buttons {
+  text-align: center;
+}
+
+.Grade .buttons > * {
+  margin: 1em;
+}

@@ -1,4 +1,5 @@
 import {
+  Button,
   Paper,
   Table,
   TableBody,
@@ -11,7 +12,10 @@ import {
 import { withStyles } from "@material-ui/core/styles";
 import { Autocomplete, createFilterOptions } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
+import { v1 as uuidv1 } from "uuid";
 import { firebaseApp } from "../lib/firebaseApp";
+
+import "./Grade.css";
 
 const options = ["22000462"];
 
@@ -33,20 +37,19 @@ const StyledSumTableRow = withStyles((theme) => ({
   },
 }))(TableRow);
 
-function Grade(prop) {
-  const defaultCurrentScore = {
-    hakbun: "",
-    points: {},
-  };
+const defaultCurrentScore = {
+  hakbun: "",
+  points: {},
+};
 
+function Grade(prop) {
   const [gradeInfo, setGradeInfo] = useState({});
   const [studentInfo, setStudentInfo] = useState({});
   const [currentScore, setCurrentScore] = useState(defaultCurrentScore);
-  const [test1, setTest] = useState("");
 
   const changeCurrentScoreState = (e) => {
     if (e.target.name === "hakbun") {
-      setCurrentScore({ ...defaultCurrentScore, hakbun: e.target.value });
+      setCurrentScore((state) => ({ ...state, hakbun: e.target.value }));
     } else {
       setCurrentScore((state) => ({
         score: { [e.target.name]: e.target.value },
@@ -113,6 +116,8 @@ function Grade(prop) {
         setGradeInfo(null);
       });
   }, []);
+
+  const resetHandler = () => setCurrentScore(defaultCurrentScore);
 
   const sum = Object.values(currentScore.points).reduce((prev, curr) => {
     return prev + +(curr.point || 0);
@@ -181,8 +186,10 @@ function Grade(prop) {
                         <Autocomplete
                           id={`${point.pointId}-deductmsg`}
                           options={[
-                            { deduct: 0, desc: "없음" },
+                            ...(point.deducts || []),
+                            { uuid: 0, deduct: 0, desc: "없음" },
                             {
+                              uuid: null,
                               deduct: 0.2,
                               desc: "hello",
                             },
@@ -215,6 +222,7 @@ function Grade(prop) {
                             console.log(newValue);
                             if (typeof newValue === "string") {
                               changeScoreDeductState(point.pointId, {
+                                uuid: uuidv1(),
                                 point: currentScore.points[point.pointId].point,
                                 deduct:
                                   point.point -
@@ -251,6 +259,18 @@ function Grade(prop) {
               </TableBody>
             </Table>
           </TableContainer>
+          <div className="buttons">
+            <Button variant="contained" onClick={resetHandler}>
+              초기화
+            </Button>
+            <Button
+              disabled={!currentScore.hakbun}
+              variant="contained"
+              color="primary"
+            >
+              저장
+            </Button>
+          </div>
         </form>
       </div>
     </div>
