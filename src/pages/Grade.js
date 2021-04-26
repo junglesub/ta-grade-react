@@ -181,8 +181,9 @@ function Grade(prop) {
                         <Autocomplete
                           id={`${point.pointId}-deductmsg`}
                           options={[
+                            { deduct: 0, desc: "없음" },
                             {
-                              point: 0.2,
+                              deduct: 0.2,
                               desc: "hello",
                             },
                           ]}
@@ -192,7 +193,7 @@ function Grade(prop) {
                             const filtered = createFilterOptions()(
                               options.filter(
                                 (option) =>
-                                  option.point !== undefined &&
+                                  option.deduct !== undefined &&
                                   option.desc !== undefined
                               ),
                               params
@@ -202,7 +203,7 @@ function Grade(prop) {
                             return filtered;
                           }}
                           getOptionLabel={(option) =>
-                            `[${option.point}] ${option.desc}`
+                            `[${option.deduct}] ${option.desc}`
                           }
                           value={
                             !currentScore.points[point.pointId] ||
@@ -214,14 +215,22 @@ function Grade(prop) {
                             console.log(newValue);
                             if (typeof newValue === "string") {
                               changeScoreDeductState(point.pointId, {
-                                point:
-                                  (currentScore.points[point.pointId] &&
-                                    currentScore.points[point.pointId].point) ||
-                                  0,
+                                point: currentScore.points[point.pointId].point,
+                                deduct:
+                                  point.point -
+                                    (currentScore.points[point.pointId] &&
+                                      currentScore.points[point.pointId]
+                                        .point) || 0,
                                 desc: newValue,
                               });
                             } else {
-                              changeScoreDeductState(point.pointId, newValue);
+                              changeScoreDeductState(point.pointId, {
+                                ...newValue,
+                                point:
+                                  (currentScore.points[point.pointId] &&
+                                    currentScore.points[point.pointId].point) ||
+                                  point.point - newValue.deduct,
+                              });
                             }
                             // setTest(newValue);
                           }}
