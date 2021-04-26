@@ -1,22 +1,24 @@
-import { Button } from "@material-ui/core";
 import "./App.css";
-import firebase from "firebase/app";
-import { firebaseApp } from "./lib/firebaseApp";
+
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import Home from "./components/Home";
+import Grade from "./components/Grade";
+import { CssBaseline, Paper } from "@material-ui/core";
+import GradeNew from "./pages/GradeNew";
 
 function App() {
   return (
     <div className="App">
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => {
-          firebaseApp
-            .auth()
-            .signInWithPopup(new firebase.auth.GoogleAuthProvider());
-        }}
-      >
-        Login
-      </Button>
+      <CssBaseline />
+      <Paper>
+        <Router>
+          <Switch>
+            <Route path="/grade/add" component={GradeNew} />
+            <Route path="/grade/:gradeID" component={Grade} />
+            <Route path="/" component={Home} />
+          </Switch>
+        </Router>
+      </Paper>
     </div>
   );
 }

@@ -1,0 +1,14 @@
+.GradeNew {
+  max-width: 900px;
+  padding: 10px;
+}
+
+.GradeNew .MuiTextField-root {
+  width: 70vh;
+  margin: 0.3em;
+  /* display: block; */
+}
+
+.GradeNew .point {
+  width: 100px;
+}
