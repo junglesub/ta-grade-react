@@ -5,8 +5,16 @@ import Home from "./pages/Home";
 import Grade from "./pages/Grade";
 import { CssBaseline, Paper } from "@material-ui/core";
 import GradeNew from "./pages/GradeNew";
+import { userStore } from "./stores/userStore";
+import { useContext } from "react";
+import NoLogin from "./pages/NoLogin";
 
 function App() {
+  const { currentUser, loading } = useContext(userStore).state;
+
+  if (!currentUser) return <NoLogin />;
+  // if (loading) return <div>Loading</div>;
+
   return (
     <div className="App">
       <CssBaseline />
