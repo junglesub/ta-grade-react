@@ -183,6 +183,7 @@ function Grade(prop) {
         freeSolo
         // getOptionLabel={(option) => option.title}
         style={{ width: 300 }}
+        value={currentScore.hakbun}
         renderInput={(params) => (
           <TextField
             {...params}
