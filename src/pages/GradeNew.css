@@ -12,3 +12,8 @@
 .GradeNew .point {
   width: 100px;
 }
+
+.GradeNew .submitButton {
+  display: block;
+  margin: auto;
+}

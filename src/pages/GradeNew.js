@@ -1,7 +1,8 @@
-import { Grid, Paper, TextField } from "@material-ui/core";
+import { Button, Grid, Paper, TextField } from "@material-ui/core";
 import React from "react";
 import { useState } from "react";
 import engHanguel from "../lib/engHanguel";
+import { firebaseApp } from "../lib/firebaseApp";
 
 import "./GradeNew.css";
 
@@ -11,6 +12,11 @@ function GradeNew() {
     eng: "",
   });
   const [gradePoints, setGradePoints] = useState([]);
+
+  const totalPoints = gradePoints.reduce(
+    (prev, curr) => (prev += +curr.point || 0),
+    0
+  );
 
   // TODO: Need to optimize this
   const changeGradeName = (e) => {
@@ -77,8 +83,16 @@ function GradeNew() {
     }
     return content;
   };
-  console.log(gradePoints);
+  const saveToFirebase = () => {
+    firebaseApp.firestore().collection("grades").doc(gradeName.eng).set({
+      gradeName: gradeName.kor,
+      owner: firebaseApp.auth().currentUser.uid,
+      totalPoints,
+      points: gradePoints,
+    });
+  };
 
+  console.log(gradePoints);
   return (
     <div className="GradeNew">
       <form noValidate autoComplete="off">
@@ -95,15 +109,20 @@ function GradeNew() {
               variant="outlined"
               id="input-totalPointes"
               label="totalPoints"
-              value={gradePoints.reduce(
-                (prev, curr) => (prev += +curr.point || 0),
-                0
-              )}
+              value={totalPoints}
             />
           </div>
           <hr />
           <div>{inputFieldsContent()}</div>
         </div>
+        <Button
+          className="submitButton"
+          variant="contained"
+          color="primary"
+          onClick={saveToFirebase}
+        >
+          등록
+        </Button>
       </form>
     </div>
   );
