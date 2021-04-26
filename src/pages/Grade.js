@@ -184,7 +184,7 @@ function Grade(prop) {
   }
 
   const sum = Object.values(currentScore.points).reduce((prev, curr) => {
-    return prev + +(curr.point || 0);
+    return +Number.parseFloat(prev + +(curr.point || 0)).toFixed(2);
   }, 0);
   return gradeInfo === null || !gradeInfo === {} ? (
     <h1>Error</h1>
@@ -305,19 +305,21 @@ function Grade(prop) {
                               changeScoreDeductState(point.pointId, {
                                 uuid: uuidv1(),
                                 point: currentScore.points[point.pointId].point,
-                                deduct:
+                                deduct: +Number.parseFloat(
                                   point.point -
                                     (currentScore.points[point.pointId] &&
                                       currentScore.points[point.pointId]
-                                        .point) || 0,
+                                        .point) || 0
+                                ).toFixed(2),
                                 desc: newValue,
                               });
                             } else {
                               changeScoreDeductState(point.pointId, {
                                 ...newValue,
-                                point:
+                                point: +Number.parseFloat(
                                   point.point -
-                                  ((newValue && newValue.deduct) || 0),
+                                    ((newValue && newValue.deduct) || 0)
+                                ).toFixed(2),
                               });
                             }
                             // setTest(newValue);
