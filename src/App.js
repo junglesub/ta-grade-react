@@ -10,6 +10,7 @@ import { useContext } from "react";
 import NoLogin from "./pages/NoLogin";
 import GradeView from "./pages/GradeView";
 import GradeDownload from "./pages/GradeDownload";
+import GradeButtons from "./components/GradeButtons";
 
 function App() {
   const { currentUser } = useContext(userStore).state;
@@ -22,6 +23,7 @@ function App() {
       <CssBaseline />
       <Paper>
         <Router>
+          <Route path="/grade/:gradeID" component={GradeButtons} />
           <Switch>
             <Route path="/grade/add" component={GradeNew} />
             <Route path="/grade/:gradeID/download" component={GradeDownload} />
