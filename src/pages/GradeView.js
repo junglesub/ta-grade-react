@@ -15,9 +15,12 @@ import "./Grade.css";
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    "&:nth-of-type(odd)": {
+    "& .cl-0": {
       backgroundColor: theme.palette.action.hover,
     },
+    // "&:nth-of-type(odd)": {
+    //   backgroundColor: theme.palette.action.hover,
+    // },
   },
 }))(TableRow);
 
@@ -107,14 +110,40 @@ function GradeView(prop) {
               </TableHead>
               <TableBody>
                 {gradeInfo.points &&
-                  gradeInfo.points.map((point) =>
+                  gradeInfo.points.map((point, index) =>
                     point.deducts.map((deduct) => (
-                      <StyledTableRow key={`${point.pointId}-${deduct.uuid}`}>
+                      <StyledTableRow
+                        className={`cl-${index % 2}`}
+                        style={index % 2 ? { backgroundColor: "#eee" } : {}}
+                        key={`${point.pointId}-${deduct.uuid}`}
+                      >
                         <TableCell component="th" scope="row">
                           {point.name}
                         </TableCell>
                         <TableCell>{deduct.desc}</TableCell>
-                        <TableCell>{deduct.deduct}</TableCell>
+                        <TableCell align="center">
+                          {deduct.deduct}
+                          <div
+                            style={{ textAlign: "center", color: "darkblue" }}
+                          >
+                            {
+                              (
+                                deducter[`${point.pointId}-${deduct.uuid}`] ||
+                                []
+                              ).length
+                            }
+                            /{Object.keys(studentInfo).length} (
+                            {Math.round(
+                              ((
+                                deducter[`${point.pointId}-${deduct.uuid}`] ||
+                                []
+                              ).length /
+                                Object.keys(studentInfo).length) *
+                                10000
+                            ) / 100}
+                            %)
+                          </div>
+                        </TableCell>
                         <TableCell align="center">
                           {(
                             deducter[`${point.pointId}-${deduct.uuid}`] || []
