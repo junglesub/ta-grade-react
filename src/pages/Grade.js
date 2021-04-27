@@ -182,6 +182,7 @@ function Grade(prop) {
   } else {
     window.onbeforeunload = undefined;
   }
+  document.title = `${currentScore.hakbun || "N/A"} 성적`;
 
   const sum = Object.values(currentScore.points).reduce((prev, curr) => {
     return +Number.parseFloat(prev + +(curr.point || 0)).toFixed(2);
