@@ -211,6 +211,7 @@ function Grade(prop) {
       <Autocomplete
         id="hakbun"
         options={Object.keys(studentInfo)}
+        disabled={needSave}
         freeSolo
         // getOptionLabel={(option) => option.title}
         style={{ width: 300 }}
