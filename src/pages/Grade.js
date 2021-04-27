@@ -255,9 +255,11 @@ function Grade(prop) {
                         <TextField
                           value={
                             // currentScore.points[point.pointId].point
-                            (currentScore.points[point.pointId] &&
-                              currentScore.points[point.pointId].point) ||
-                            ""
+                            currentScore.points[point.pointId] &&
+                            typeof currentScore.points[point.pointId].point ===
+                              "number"
+                              ? currentScore.points[point.pointId].point
+                              : ""
                           }
                         />
                       </TableCell>
