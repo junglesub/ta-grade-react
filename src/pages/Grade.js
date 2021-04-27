@@ -256,8 +256,8 @@ function Grade(prop) {
                           value={
                             // currentScore.points[point.pointId].point
                             currentScore.points[point.pointId] &&
-                            typeof currentScore.points[point.pointId].point ===
-                              "number"
+                            currentScore.points[point.pointId].point !==
+                              undefined
                               ? currentScore.points[point.pointId].point
                               : ""
                           }
