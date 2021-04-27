@@ -8,6 +8,7 @@ import GradeNew from "./pages/GradeNew";
 import { userStore } from "./stores/userStore";
 import { useContext } from "react";
 import NoLogin from "./pages/NoLogin";
+import GradeView from "./pages/GradeView";
 
 function App() {
   const { currentUser } = useContext(userStore).state;
@@ -22,6 +23,7 @@ function App() {
         <Router>
           <Switch>
             <Route path="/grade/add" component={GradeNew} />
+            <Route path="/grade/:gradeID/view" component={GradeView} />
             <Route path="/grade/:gradeID" component={Grade} />
             <Route path="/" component={Home} />
           </Switch>
