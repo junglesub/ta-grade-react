@@ -86,6 +86,7 @@ function GradeDownload(prop) {
   ) : (
     <div className="GradeDownload">
       <CSVLink
+        filename={`${prop.match.params.gradeID}.csv`}
         data={[
           [
             "hakbun",
