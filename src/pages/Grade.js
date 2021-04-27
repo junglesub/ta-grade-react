@@ -234,7 +234,7 @@ function Grade(prop) {
                   <TableCell>설명</TableCell>
                   <TableCell width="100px">최고점수</TableCell>
                   <TableCell width="100px">점수</TableCell>
-                  <TableCell>감점사유</TableCell>
+                  <TableCell width="50%">감점사유</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
