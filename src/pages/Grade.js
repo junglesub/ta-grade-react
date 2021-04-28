@@ -1,5 +1,7 @@
 import {
   Button,
+  Card,
+  Grid,
   Table,
   TableBody,
   TableCell,
@@ -10,6 +12,7 @@ import {
 } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Prompt } from "react-router";
 import { v1 as uuidv1 } from "uuid";
@@ -46,6 +49,27 @@ function Grade(prop) {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState([]);
   const [needSave, setNeedSave] = useState(false);
+  const [studentPInfo, setStudentPInfo] = useState({});
+
+  useEffect(() => {
+    if (!currentScore.hakbun) {
+      setStudentPInfo({});
+      return;
+    }
+    setStudentPInfo({ loading: true });
+    axios
+      .get(
+        `https://6fue1vjaea.execute-api.us-east-1.amazonaws.com/default/my-api?hakbun=${currentScore.hakbun}`,
+        {
+          headers: {
+            "x-api-key": "",
+          },
+        }
+      )
+      .then((doc) => {
+        setStudentPInfo(doc.data);
+      });
+  }, [currentScore.hakbun]);
 
   const changeHakbun = (e, nextValue) => {
     console.log(defaultCurrentScore);
@@ -202,31 +226,50 @@ function Grade(prop) {
           </Alert>
         ))}
       </div>
-      <div>
-        <h1>
-          {gradeInfo.gradeName}
-          {needSave ? "*" : ""}
-        </h1>
-      </div>
-      <Autocomplete
-        id="hakbun"
-        options={Object.keys(studentInfo)}
-        disabled={needSave}
-        freeSolo
-        // getOptionLabel={(option) => option.title}
-        style={{ width: 300 }}
-        value={currentScore.hakbun}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label="학번"
-            // onChange={changeCurrentScoreState}
-            variant="outlined"
+      <Grid container justify="space-between">
+        <Grid item>
+          <div>
+            <h1>
+              {gradeInfo.gradeName}
+              {needSave ? "*" : ""}
+            </h1>
+          </div>
+          <Autocomplete
+            id="hakbun"
+            options={Object.keys(studentInfo)}
+            disabled={needSave}
+            freeSolo
+            // getOptionLabel={(option) => option.title}
+            style={{ width: 300 }}
+            value={currentScore.hakbun}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="학번"
+                // onChange={changeCurrentScoreState}
+                variant="outlined"
+              />
+            )}
+            clearOnBlur
+            onChange={changeHakbun}
           />
-        )}
-        clearOnBlur
-        onChange={changeHakbun}
-      />
+        </Grid>
+        <Grid item>
+          {Object.keys(studentPInfo).length !== 0 && (
+            <Card className="userInfo">
+              {studentPInfo.loading ? (
+                <div>Loading...</div>
+              ) : (
+                <div>
+                  <h3>{studentPInfo.name}</h3>
+                  <p>{currentScore.hakbun}</p>
+                  <p>{studentPInfo.pho}</p>
+                </div>
+              )}
+            </Card>
+          )}
+        </Grid>
+      </Grid>
       <div>
         <form noValidate autoComplete="off">
           <TableContainer>

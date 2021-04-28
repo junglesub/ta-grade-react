@@ -5,3 +5,8 @@
 .Grade .buttons > * {
   margin: 1em;
 }
+
+.Grade .userInfo {
+  padding: 1em;
+  margin-right: 4em;
+}
