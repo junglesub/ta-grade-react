@@ -5,6 +5,7 @@ import {
   CardMedia,
   CircularProgress,
   Grid,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -15,6 +16,8 @@ import {
 } from "@material-ui/core";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { Prompt } from "react-router";
@@ -45,6 +48,8 @@ const StyledSumTableRow = withStyles((theme) => ({
 const useProfileStyle = makeStyles((theme) => ({
   root: {
     display: "flex",
+    width: 280,
+    position: "relative", // For eyeball
   },
   details: {
     display: "flex",
@@ -71,6 +76,9 @@ function Grade(prop) {
   const [needSave, setNeedSave] = useState(false);
   const [studentPInfo, setStudentPInfo] = useState({});
   const [apiKey, setApiKey] = useState("");
+  const [visPro, setVisPro] = useState(
+    localStorage.getItem("visPro") === "true" || false
+  );
   const { currentUser } = useContext(userStore).state;
 
   useEffect(() => {
@@ -112,6 +120,11 @@ function Grade(prop) {
   };
 
   console.log(currentScore);
+
+  const changeVisibility = () => {
+    localStorage.setItem("visPro", !visPro);
+    setVisPro((state) => !state);
+  };
 
   const changeScorePointState = (pointId, point) => {
     setNeedSave(true);
@@ -292,6 +305,15 @@ function Grade(prop) {
         <Grid item>
           {Object.keys(studentPInfo).length !== 0 && (
             <Card className={profileClasses.root}>
+              <IconButton
+                style={{
+                  position: "absolute",
+                  right: 0,
+                }}
+                onClick={changeVisibility}
+              >
+                {visPro ? <Visibility /> : <VisibilityOff />}
+              </IconButton>
               {studentPInfo.loading ? (
                 <CircularProgress />
               ) : (
@@ -300,13 +322,18 @@ function Grade(prop) {
                     <CardContent className={profileClasses.content}>
                       <h3>{studentPInfo.name}</h3>
                       <p>{currentScore.hakbun}</p>
-                      <p>{studentPInfo.pho}</p>
+                      {visPro && <p>{studentPInfo.pho}</p>}
                     </CardContent>
                   </div>
+
                   <CardMedia
                     className={profileClasses.cover}
                     title={`${currentScore.hakbun}-i`}
-                    image={studentPInfo.i}
+                    image={
+                      visPro
+                        ? studentPInfo.i
+                        : "https://upload.wikimedia.org/wikipedia/en/c/c8/HGUseal.png"
+                    }
                   />
                 </>
               )}
