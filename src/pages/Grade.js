@@ -16,10 +16,11 @@ import {
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Prompt } from "react-router";
 import { v1 as uuidv1 } from "uuid";
 import { firebaseApp } from "../lib/firebaseApp";
+import { userStore } from "../stores/userStore";
 
 import "./Grade.css";
 
@@ -69,9 +70,11 @@ function Grade(prop) {
   const [errors, setErrors] = useState([]);
   const [needSave, setNeedSave] = useState(false);
   const [studentPInfo, setStudentPInfo] = useState({});
+  const [apiKey, setApiKey] = useState("");
+  const { currentUser } = useContext(userStore).state;
 
   useEffect(() => {
-    if (!currentScore.hakbun) {
+    if (!apiKey || !currentScore.hakbun) {
       setStudentPInfo({});
       return;
     }
@@ -81,14 +84,23 @@ function Grade(prop) {
         `https://6fue1vjaea.execute-api.us-east-1.amazonaws.com/default/my-api?hakbun=${currentScore.hakbun}`,
         {
           headers: {
-            "x-api-key": "apikey",
+            "x-api-key": apiKey,
           },
         }
       )
       .then((doc) => {
         setStudentPInfo(doc.data);
       });
-  }, [currentScore.hakbun]);
+  }, [currentScore.hakbun, apiKey]);
+
+  useEffect(() => {
+    firebaseApp
+      .firestore()
+      .collection("users")
+      .doc(currentUser.uid)
+      .get()
+      .then((data) => setApiKey(data.data().apikey));
+  }, [currentUser]);
 
   const changeHakbun = (e, nextValue) => {
     console.log(defaultCurrentScore);
