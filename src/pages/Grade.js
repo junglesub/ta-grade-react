@@ -1,6 +1,9 @@
 import {
   Button,
   Card,
+  CardContent,
+  CardMedia,
+  CircularProgress,
   Grid,
   Table,
   TableBody,
@@ -10,7 +13,7 @@ import {
   TableRow,
   TextField,
 } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { Alert, Autocomplete, createFilterOptions } from "@material-ui/lab";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -38,6 +41,22 @@ const StyledSumTableRow = withStyles((theme) => ({
   },
 }))(TableRow);
 
+const useProfileStyle = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+  },
+  details: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  content: {
+    flex: "1 0 auto",
+  },
+  cover: {
+    width: 151,
+  },
+}));
+
 function Grade(prop) {
   const defaultCurrentScore = {
     hakbun: "",
@@ -62,7 +81,7 @@ function Grade(prop) {
         `https://6fue1vjaea.execute-api.us-east-1.amazonaws.com/default/my-api?hakbun=${currentScore.hakbun}`,
         {
           headers: {
-            "x-api-key": "",
+            "x-api-key": "apikey",
           },
         }
       )
@@ -208,6 +227,10 @@ function Grade(prop) {
   }
   document.title = `${currentScore.hakbun || "N/A"} 성적`;
 
+  // Profile
+
+  const profileClasses = useProfileStyle();
+
   const sum = Object.values(currentScore.points).reduce((prev, curr) => {
     return +Number.parseFloat(prev + +(curr.point || 0)).toFixed(2);
   }, 0);
@@ -256,15 +279,24 @@ function Grade(prop) {
         </Grid>
         <Grid item>
           {Object.keys(studentPInfo).length !== 0 && (
-            <Card className="userInfo">
+            <Card className={profileClasses.root}>
               {studentPInfo.loading ? (
-                <div>Loading...</div>
+                <CircularProgress />
               ) : (
-                <div>
-                  <h3>{studentPInfo.name}</h3>
-                  <p>{currentScore.hakbun}</p>
-                  <p>{studentPInfo.pho}</p>
-                </div>
+                <>
+                  <div className={profileClasses.details}>
+                    <CardContent className={profileClasses.content}>
+                      <h3>{studentPInfo.name}</h3>
+                      <p>{currentScore.hakbun}</p>
+                      <p>{studentPInfo.pho}</p>
+                    </CardContent>
+                  </div>
+                  <CardMedia
+                    className={profileClasses.cover}
+                    title={`${currentScore.hakbun}-i`}
+                    image={studentPInfo.i}
+                  />
+                </>
               )}
             </Card>
           )}
