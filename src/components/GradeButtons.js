@@ -12,6 +12,9 @@ function GradeButtons(prop) {
       <Button component={Link} to={`${rootLink}/view`}>
         View
       </Button>
+      <Button component={Link} to={`${rootLink}/stu`}>
+        Stu
+      </Button>
       <Button component={Link} to={`${rootLink}/download`}>
         Download
       </Button>

@@ -1,0 +1,9 @@
+.StudentView .onestu {
+  border: 1px black solid;
+  margin: 1em;
+  padding: 1em;
+}
+
+.StudentView h3 {
+  margin: 0;
+}

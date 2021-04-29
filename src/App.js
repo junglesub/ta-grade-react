@@ -11,6 +11,7 @@ import NoLogin from "./pages/NoLogin";
 import GradeView from "./pages/GradeView";
 import GradeDownload from "./pages/GradeDownload";
 import GradeButtons from "./components/GradeButtons";
+import StudentView from "./pages/StudentView";
 
 function App() {
   const { currentUser } = useContext(userStore).state;
@@ -26,6 +27,7 @@ function App() {
           <Route path="/grade/:gradeID" component={GradeButtons} />
           <Switch>
             <Route path="/grade/add" component={GradeNew} />
+            <Route path="/grade/:gradeID/stu" component={StudentView} />
             <Route path="/grade/:gradeID/download" component={GradeDownload} />
             <Route path="/grade/:gradeID/view" component={GradeView} />
             <Route path="/grade/:gradeID" component={Grade} />
