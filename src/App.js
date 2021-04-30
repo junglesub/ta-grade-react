@@ -25,7 +25,7 @@ function App() {
       <CssBaseline />
       <Paper>
         <Router>
-          <Route path="/grade" component={GradeButtons} />
+          <Route path="/grade/:gradeID" component={GradeButtons} />
           <Switch>
             <Route exact path="/grade/add" component={GradeNew} />
             <Route exact path="/grade" component={GradeHome} />
