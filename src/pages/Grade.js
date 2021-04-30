@@ -129,6 +129,7 @@ function Grade(prop) {
   };
 
   const changeScorePointState = (pointId, point) => {
+    if (!currentScore.hakbun || saving) return;
     setNeedSave(true);
     console.log("changeScorePointState-setcurrentScore");
     setCurrentScore((state) => {
@@ -140,6 +141,7 @@ function Grade(prop) {
     });
   };
   const changeScoreDeductState = (pointId, deductReason) => {
+    if (!currentScore.hakbun || saving) return;
     // e.preventDefault();
     setNeedSave(true);
     const newObject = { ...currentScore };
