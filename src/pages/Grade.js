@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  Checkbox,
   CircularProgress,
   Grid,
   IconButton,
@@ -67,6 +68,7 @@ function Grade(prop) {
   const defaultCurrentScore = {
     hakbun: "",
     points: {},
+    late: false,
   };
   const [gradeInfo, setGradeInfo] = useState({});
   const [studentInfo, setStudentInfo] = useState({});
@@ -187,6 +189,14 @@ function Grade(prop) {
       });
   }, [prop.match.params.gradeID]);
 
+  const lateHandler = (event, nextValue) => {
+    console.log(nextValue);
+    setCurrentScore((state) => ({
+      ...state,
+      late: nextValue,
+    }));
+  };
+
   const resetHandler = () => {
     setNeedSave(false);
     console.log("resetHandler-setcurrentScore");
@@ -256,12 +266,14 @@ function Grade(prop) {
 
   const profileClasses = useProfileStyle();
 
-  const sum = Object.values(currentScore.points).reduce((prev, curr) => {
-    return +Number.parseFloat(prev + +(curr.point || 0)).toFixed(2);
-  }, 0);
-  return gradeInfo === null || !gradeInfo === {} ? (
-    <h1>Error</h1>
-  ) : (
+  if (gradeInfo === null || !gradeInfo === {}) return <h1>Error</h1>;
+
+  const sum = +Number.parseFloat(
+    Object.values(currentScore.points).reduce((prev, curr) => {
+      return prev + +(curr.point || 0);
+    }, 0) * (currentScore.late ? 1 - gradeInfo.late_deduct : 1)
+  ).toFixed(2);
+  return (
     <div className="Grade">
       <Prompt
         when={needSave}
@@ -449,6 +461,29 @@ function Grade(prop) {
                       </TableCell>
                     </StyledTableRow>
                   ))}
+                <StyledTableRow>
+                  <TableCell component="th" scope="row">
+                    Late
+                  </TableCell>
+                  <TableCell align="right">
+                    {(gradeInfo.late_deduct || 0) * 100}%
+                  </TableCell>
+                  <TableCell>
+                    {
+                      +Number.parseFloat(
+                        currentScore.late
+                          ? sum - sum / (1 - (gradeInfo.late_deduct || 0))
+                          : sum * -(gradeInfo.late_deduct || 0)
+                      ).toFixed(2)
+                    }
+                  </TableCell>
+                  <TableCell>
+                    <Checkbox
+                      checked={currentScore.late || false}
+                      onChange={lateHandler}
+                    />
+                  </TableCell>
+                </StyledTableRow>
                 <StyledSumTableRow>
                   <TableCell component="th" scope="row">
                     합계

@@ -66,11 +66,18 @@ function StudentView(prop) {
               <h3>{student.hakbun}</h3>
               <h4>
                 총점:{" "}
-                {Object.values(student.points).reduce((prev, curr) => {
+                {
+                  +Number.parseFloat(
+                    Object.values(student.points).reduce((prev, curr) => {
+                      return prev + +(curr.point || 0);
+                    }, 0) * (student.late ? 1 - gradeInfo.late_deduct : 1)
+                  ).toFixed(2)
+                }
+                {/* {Object.values(student.points).reduce((prev, curr) => {
                   return +Number.parseFloat(prev + +(curr.point || 0)).toFixed(
                     2
                   );
-                }, 0)}
+                }, 0)} */}
               </h4>
               {Object.keys(student.points)
                 .filter((pointId) => student.points[pointId].deduct > 0)
@@ -83,6 +90,9 @@ function StudentView(prop) {
                     </div>
                   </div>
                 ))}
+              {student.late && (
+                <div>Late: {(gradeInfo.late_deduct || 0) * 100}% 감점</div>
+              )}
             </div>
           ))}
       </div>

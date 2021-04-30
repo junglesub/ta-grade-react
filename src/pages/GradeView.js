@@ -378,6 +378,36 @@ function GradeView(prop) {
                       </StyledTableRow>
                     ))
                   )}
+                <TableRow style={{ backgroundColor: "#FFCCCB" }}>
+                  <TableCell component="th" scope="row" colSpan={2}>
+                    Late
+                  </TableCell>
+                  <TableCell align="center">
+                    {(gradeInfo.late_deduct || 0) * 100}%
+                    <div style={{ textAlign: "center", color: "darkblue" }}>
+                      {
+                        Object.values(studentInfo)
+                          .filter((s) => s.late)
+                          .map((s) => s.hakbun).length
+                      }
+                      /{Object.keys(studentInfo).length} (
+                      {Math.round(
+                        (Object.values(studentInfo)
+                          .filter((s) => s.late)
+                          .map((s) => s.hakbun).length /
+                          Object.keys(studentInfo).length) *
+                          10000
+                      ) / 100}
+                      %)
+                    </div>
+                  </TableCell>
+                  <TableCell align="center">
+                    {Object.values(studentInfo)
+                      .filter((s) => s.late)
+                      .map((s) => s.hakbun)
+                      .join(", ")}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
