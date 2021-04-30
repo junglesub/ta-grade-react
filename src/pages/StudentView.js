@@ -76,8 +76,8 @@ function StudentView(prop) {
                 .filter((pointId) => student.points[pointId].deduct > 0)
                 .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
                 .map((pointId) => (
-                  <div>
-                    <div key={pointId}>
+                  <div key={pointId}>
+                    <div>
                       (-{student.points[pointId].deduct}){" "}
                       {student.points[pointId].desc}
                     </div>
