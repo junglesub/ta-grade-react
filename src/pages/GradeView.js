@@ -346,8 +346,9 @@ function GradeView(prop) {
                               value={changedValue.deductdeduct}
                             />
                           ) : (
-                            deduct.deduct
-                          )}
+                            -deduct.deduct
+                          )}{" "}
+                          ({point.point})
                           <div
                             style={{ textAlign: "center", color: "darkblue" }}
                           >
