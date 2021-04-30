@@ -12,6 +12,7 @@ import GradeView from "./pages/GradeView";
 import GradeDownload from "./pages/GradeDownload";
 import GradeButtons from "./components/GradeButtons";
 import StudentView from "./pages/StudentView";
+import GradeHome from "./pages/GradeHome";
 
 function App() {
   const { currentUser } = useContext(userStore).state;
@@ -24,14 +25,19 @@ function App() {
       <CssBaseline />
       <Paper>
         <Router>
-          <Route path="/grade/:gradeID" component={GradeButtons} />
+          <Route path="/grade" component={GradeButtons} />
           <Switch>
-            <Route path="/grade/add" component={GradeNew} />
-            <Route path="/grade/:gradeID/stu" component={StudentView} />
-            <Route path="/grade/:gradeID/download" component={GradeDownload} />
-            <Route path="/grade/:gradeID/view" component={GradeView} />
-            <Route path="/grade/:gradeID" component={Grade} />
-            <Route path="/" component={Home} />
+            <Route exact path="/grade/add" component={GradeNew} />
+            <Route exact path="/grade" component={GradeHome} />
+            <Route exact path="/grade/:gradeID/stu" component={StudentView} />
+            <Route
+              exact
+              path="/grade/:gradeID/download"
+              component={GradeDownload}
+            />
+            <Route exact path="/grade/:gradeID/view" component={GradeView} />
+            <Route exact path="/grade/:gradeID" component={Grade} />
+            <Route exact path="/" component={Home} />
           </Switch>
         </Router>
       </Paper>
