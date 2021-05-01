@@ -91,7 +91,7 @@ function Grade(prop) {
     setStudentPInfo({ loading: true });
     axios
       .get(
-        `https://6fue1vjaea.execute-api.us-east-1.amazonaws.com/default/my-api?hakbun=${currentScore.hakbun}`,
+        `https://6lb9wtlfja.execute-api.us-east-1.amazonaws.com/dev/my-api?hakbun=${currentScore.hakbun}`,
         {
           headers: {
             "x-api-key": apiKey,
