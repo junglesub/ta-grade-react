@@ -33,8 +33,14 @@ function GradeDownload(prop) {
           return null;
         });
         stuGrd.push(
+          student.late ? `(${(gradeInfo.late_deduct || 0) * 100}%)` : ""
+        );
+        stuGrd.push(
           Number.parseFloat(
-            stuGrd.slice(1).reduce((prev, curr) => prev + +curr, 0)
+            stuGrd
+              .slice(1, stuGrd.length - 1)
+              .reduce((prev, curr) => prev + +curr, 0) *
+              (student.late ? 1 - gradeInfo.late_deduct : 1)
           ).toFixed(2)
         );
         printGrade.push(stuGrd);
@@ -91,6 +97,7 @@ function GradeDownload(prop) {
           [
             "hakbun",
             ...Object.values(headerGrade).map((header) => header.name),
+            "late",
             "total",
           ],
           ...printGrade,
