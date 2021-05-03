@@ -1,3 +1,4 @@
+import { Button } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
 import { firebaseApp } from "../lib/firebaseApp";
@@ -43,6 +44,15 @@ function StudentView(prop) {
         setGradeInfo(null);
       });
   }, [prop.match.params.gradeID]);
+
+  const copyToClipboard = (event) => {
+    const deduct = event.target.parentElement.parentElement.getElementsByClassName(
+      "deduct"
+    )[0].innerText;
+
+    navigator.clipboard.writeText(deduct);
+  };
+
   document.title = `${prop.match.params.gradeID} 기록`;
 
   return gradeInfo === null || !gradeInfo === {} ? (
@@ -64,6 +74,7 @@ function StudentView(prop) {
           Object.values(studentInfo).map((student, index) => (
             <div key={student.hakbun} className="onestu">
               <h3>{student.hakbun}</h3>
+              <Button onClick={copyToClipboard}>클립보드 복사</Button>
               <h4>
                 총점:{" "}
                 {
@@ -79,20 +90,22 @@ function StudentView(prop) {
                   );
                 }, 0)} */}
               </h4>
-              {Object.keys(student.points)
-                .filter((pointId) => student.points[pointId].deduct > 0)
-                .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
-                .map((pointId) => (
-                  <div key={pointId}>
-                    <div>
-                      (-{student.points[pointId].deduct}){" "}
-                      {student.points[pointId].desc}
+              <div className="deduct">
+                {Object.keys(student.points)
+                  .filter((pointId) => student.points[pointId].deduct > 0)
+                  .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
+                  .map((pointId) => (
+                    <div key={pointId}>
+                      <div>
+                        (-{student.points[pointId].deduct}){" "}
+                        {student.points[pointId].desc}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              {student.late && (
-                <div>Late: {(gradeInfo.late_deduct || 0) * 100}% 감점</div>
-              )}
+                  ))}
+                {student.late && (
+                  <div>Late: {(gradeInfo.late_deduct || 0) * 100}% 감점</div>
+                )}
+              </div>
             </div>
           ))}
       </div>
