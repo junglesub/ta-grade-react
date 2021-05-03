@@ -8,7 +8,7 @@ import "./StudentView.css";
 function StudentView(prop) {
   const [gradeInfo, setGradeInfo] = useState({});
   const [studentInfo, setStudentInfo] = useState({});
-  const [errors /*, setErrors*/] = useState([]);
+  const [errors, setErrors] = useState([]);
 
   useEffect(() => {
     const firestoreDoc = firebaseApp
@@ -50,7 +50,10 @@ function StudentView(prop) {
       "deduct"
     )[0].innerText;
 
-    navigator.clipboard.writeText(deduct);
+    navigator.clipboard.writeText(deduct).catch((e) => {
+      console.error(e);
+      setErrors((state) => [...state, "Error: " + e.toString()]);
+    });
   };
 
   document.title = `${prop.match.params.gradeID} 기록`;
