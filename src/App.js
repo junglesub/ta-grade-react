@@ -13,6 +13,7 @@ import GradeDownload from "./pages/GradeDownload";
 import GradeButtons from "./components/GradeButtons";
 import StudentView from "./pages/StudentView";
 import GradeHome from "./pages/GradeHome";
+import ExportToHisnet from "./pages/ExportToHisnet";
 
 function App() {
   const { currentUser } = useContext(userStore).state;
@@ -36,6 +37,11 @@ function App() {
               component={GradeDownload}
             />
             <Route exact path="/grade/:gradeID/view" component={GradeView} />
+            <Route
+              exact
+              path="/grade/:gradeID/hisnet"
+              component={ExportToHisnet}
+            />
             <Route exact path="/grade/:gradeID" component={Grade} />
             <Route exact path="/" component={Home} />
           </Switch>
