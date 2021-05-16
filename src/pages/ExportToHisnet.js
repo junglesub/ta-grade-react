@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
+import GetLogin from "../components/hisnet/GetLogin";
 import { firebaseApp } from "../lib/firebaseApp";
 
 import "./StudentView.css";
@@ -42,9 +43,7 @@ function getSteps() {
 function getStepContent(step) {
   switch (step) {
     case 0:
-      return `For each ad campaign that you create, you can control how much
-              you're willing to spend on clicks and conversions, which networks
-              and geographical locations you want your ads to show on, and more.`;
+      return <GetLogin />;
     case 1:
       return "An ad group contains one or more ads which target a shared set of keywords.";
     case 2:
@@ -68,6 +67,7 @@ function ExportToHisnet(prop) {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = getSteps();
+  const [finishedStep, setFinishedStep] = [Array(steps.length).fill(false)];
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -165,6 +165,7 @@ function ExportToHisnet(prop) {
                       Back
                     </Button>
                     <Button
+                      disabled={!finishedStep[activeStep]}
                       variant="contained"
                       color="primary"
                       onClick={handleNext}
