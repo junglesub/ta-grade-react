@@ -16,6 +16,7 @@ import { firebaseApp } from "../lib/firebaseApp";
 
 import "./StudentView.css";
 import GetClass from "../components/hisnet/GetClass";
+import GetHomework from "../components/hisnet/GetHomework";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,6 +40,7 @@ function ExportToHisnet(prop) {
   const [errors, setErrors] = useState([]);
 
   const [classInfo, setClassInfo] = useState({});
+  const [homeworkInfo, setHomeworkInfo] = useState({});
 
   // User Hisnet Data
   const [token, setToken] = useState("");
@@ -51,8 +53,9 @@ function ExportToHisnet(prop) {
       classInfo.name
         ? `[${classInfo.code}-${classInfo.ban}] ${classInfo.name}`
         : "TA 과목 확인 및 선택",
-      "과목 과제 리스트 확인 및 선택",
-      "성적 내보내기",
+      homeworkInfo.title || "과목 과제 리스트 확인 및 선택",
+      "학생선택",
+      "내보내기",
     ];
   };
 
@@ -89,10 +92,14 @@ function ExportToHisnet(prop) {
           />
         );
       case 2:
-        return `Try out different ad text to see what brings in the most customers,
-                and learn how to enhance your ads using features like ad extensions.
-                If you run into any problems with your ads, find out how to tell if
-                they're running and how to resolve approval issues.`;
+        return (
+          <GetHomework
+            token={token}
+            classInfo={classInfo}
+            value={homeworkInfo}
+            setHomeworkInfo={setHomeworkInfo}
+          />
+        );
       case 3:
         return <b>Hello World!</b>;
       default:
@@ -112,6 +119,16 @@ function ExportToHisnet(prop) {
         ...state.slice(2),
       ]),
     [classInfo, token]
+  );
+  useEffect(
+    () =>
+      setFinishedStep((state) => [
+        !!token,
+        !!classInfo.name,
+        !!homeworkInfo.title,
+        ...state.slice(3),
+      ]),
+    [classInfo, token, homeworkInfo]
   );
   console.log(jwt.decode(token), { finishedStep });
 
