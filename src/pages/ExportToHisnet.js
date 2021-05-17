@@ -10,6 +10,7 @@ import {
 } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
+import jwt from "jsonwebtoken";
 import GetLogin from "../components/hisnet/GetLogin";
 import { firebaseApp } from "../lib/firebaseApp";
 
@@ -31,43 +32,31 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function getSteps() {
-  return [
-    "Hisnet 로그인",
-    "TA 과목 확인 및 선택",
-    "과목 과제 리스트 확인 및 선택",
-    "성적 내보내기",
-  ];
-}
-
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return <GetLogin />;
-    case 1:
-      return "An ad group contains one or more ads which target a shared set of keywords.";
-    case 2:
-      return `Try out different ad text to see what brings in the most customers,
-              and learn how to enhance your ads using features like ad extensions.
-              If you run into any problems with your ads, find out how to tell if
-              they're running and how to resolve approval issues.`;
-    case 3:
-      return <b>Hello World!</b>;
-    default:
-      return "Unknown step";
-  }
-}
-
 function ExportToHisnet(prop) {
   const [gradeInfo, setGradeInfo] = useState({});
   const [studentInfo, setStudentInfo] = useState({});
   const [errors, setErrors] = useState([]);
 
+  // User Hisnet Data
+  const [token, setToken] = useState("");
+
   // Start Steps
+  // Need to optimize using react hooks
+  const getSteps = () => {
+    return [
+      `Hisnet 로그인 (${token && jwt.decode(token).hisnetId})`,
+      "TA 과목 확인 및 선택",
+      "과목 과제 리스트 확인 및 선택",
+      "성적 내보내기",
+    ];
+  };
+
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = getSteps();
-  const [finishedStep, setFinishedStep] = [Array(steps.length).fill(false)];
+  const [finishedStep, setFinishedStep] = React.useState([
+    Array(steps.length).fill(false),
+  ]);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -81,6 +70,30 @@ function ExportToHisnet(prop) {
     setActiveStep(0);
   };
   // End Steps
+
+  function getStepContent(step) {
+    switch (step) {
+      case 0:
+        return !token ? <GetLogin setToken={setToken} /> : <p>로그인 완료</p>;
+      case 1:
+        return "An ad group contains one or more ads which target a shared set of keywords.";
+      case 2:
+        return `Try out different ad text to see what brings in the most customers,
+                and learn how to enhance your ads using features like ad extensions.
+                If you run into any problems with your ads, find out how to tell if
+                they're running and how to resolve approval issues.`;
+      case 3:
+        return <b>Hello World!</b>;
+      default:
+        return "Unknown step";
+    }
+  }
+
+  useEffect(
+    () => setFinishedStep((state) => [!!token, ...state.slice(1)]),
+    [token]
+  );
+  console.log(jwt.decode(token), { finishedStep });
 
   useEffect(() => {
     const firestoreDoc = firebaseApp

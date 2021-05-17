@@ -7,10 +7,14 @@ import {
   DialogTitle,
   TextField,
 } from "@material-ui/core";
+import axios from "axios";
 import React from "react";
+import { url_config } from "../../url_config";
 
-function GetLogin() {
+function GetLogin({ setToken }) {
   const [open, setOpen] = React.useState(false);
+  const hisnetIdRef = React.useRef();
+  const hisnetPwRef = React.useRef();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -18,6 +22,22 @@ function GetLogin() {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const loginUser = async () => {
+    console.log(hisnetIdRef.current.value, hisnetPwRef.current.value);
+    try {
+      const token = (
+        await axios.post(`${url_config.hisnet_grade}/login`, {
+          username: hisnetIdRef.current.value,
+          password: hisnetPwRef.current.value,
+        })
+      ).data;
+      setToken(token.token);
+      setOpen(false);
+    } catch (e) {
+      console.error(e);
+    }
   };
   return (
     <div>
@@ -39,6 +59,7 @@ function GetLogin() {
             서버에 저장하지 않습니다.
           </DialogContentText>
           <TextField
+            inputRef={hisnetIdRef}
             autoFocus
             margin="dense"
             id="name"
@@ -47,6 +68,7 @@ function GetLogin() {
             autoComplete="off"
           />
           <TextField
+            inputRef={hisnetPwRef}
             margin="dense"
             id="name"
             label="HisnetPW"
@@ -59,7 +81,7 @@ function GetLogin() {
           <Button onClick={handleClose} color="primary">
             취소
           </Button>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={loginUser} color="primary">
             로그인
           </Button>
         </DialogActions>
