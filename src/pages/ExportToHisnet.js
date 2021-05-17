@@ -15,6 +15,7 @@ import GetLogin from "../components/hisnet/GetLogin";
 import { firebaseApp } from "../lib/firebaseApp";
 
 import "./StudentView.css";
+import GetClass from "../components/hisnet/GetClass";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,6 +38,8 @@ function ExportToHisnet(prop) {
   const [studentInfo, setStudentInfo] = useState({});
   const [errors, setErrors] = useState([]);
 
+  const [classInfo, setClassInfo] = useState({});
+
   // User Hisnet Data
   const [token, setToken] = useState("");
 
@@ -45,7 +48,9 @@ function ExportToHisnet(prop) {
   const getSteps = () => {
     return [
       `Hisnet 로그인 (${token && jwt.decode(token).hisnetId})`,
-      "TA 과목 확인 및 선택",
+      classInfo.name
+        ? `[${classInfo.code}-${classInfo.ban}] ${classInfo.name}`
+        : "TA 과목 확인 및 선택",
       "과목 과제 리스트 확인 및 선택",
       "성적 내보내기",
     ];
@@ -76,7 +81,13 @@ function ExportToHisnet(prop) {
       case 0:
         return !token ? <GetLogin setToken={setToken} /> : <p>로그인 완료</p>;
       case 1:
-        return "An ad group contains one or more ads which target a shared set of keywords.";
+        return (
+          <GetClass
+            token={token}
+            value={classInfo}
+            changeClass={setClassInfo}
+          />
+        );
       case 2:
         return `Try out different ad text to see what brings in the most customers,
                 and learn how to enhance your ads using features like ad extensions.
@@ -92,6 +103,15 @@ function ExportToHisnet(prop) {
   useEffect(
     () => setFinishedStep((state) => [!!token, ...state.slice(1)]),
     [token]
+  );
+  useEffect(
+    () =>
+      setFinishedStep((state) => [
+        !!token,
+        classInfo !== {},
+        ...state.slice(2),
+      ]),
+    [classInfo, token]
   );
   console.log(jwt.decode(token), { finishedStep });
 
