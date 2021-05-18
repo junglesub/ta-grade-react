@@ -25,6 +25,8 @@ export default function SendGrade({
   homeworkInfo,
   hakbuns,
   selectedStudent,
+  gradeInfo,
+  studentInfo,
 }) {
   const classes = useStyles();
   const [response, setResponse] = useState({});
@@ -41,8 +43,28 @@ export default function SendGrade({
             contentId: homeworkInfo.contentId,
             hakbuns,
             hakbun: value,
-            point: "0.0",
-            content: value,
+            point: studentInfo[value]
+              ? +Number.parseFloat(
+                  Object.values(studentInfo[value].points).reduce(
+                    (prev, curr) => {
+                      return prev + +(curr.point || 0);
+                    },
+                    0
+                  ) * (studentInfo[value].late ? 1 - gradeInfo.late_deduct : 1)
+                ).toFixed(2)
+              : 0,
+            content: studentInfo[value]
+              ? Object.keys(studentInfo[value].points)
+                  .filter(
+                    (pointId) => studentInfo[value].points[pointId].deduct > 0
+                  )
+                  .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
+                  .map(
+                    (pointId) =>
+                      `(-${studentInfo[value].points[pointId].deduct}) ${studentInfo[value].points[pointId].desc}`
+                  )
+                  .join("\n")
+              : "",
           })
           .then(() => {
             setResponse((state) => ({ ...state, [value]: "Updated..." }));

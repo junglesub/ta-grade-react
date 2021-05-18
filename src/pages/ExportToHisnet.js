@@ -50,6 +50,41 @@ function ExportToHisnet(prop) {
   const [token, setToken] = useState("");
 
   // Get 성적 Grade
+  useEffect(() => {
+    const firestoreDoc = firebaseApp
+      .firestore()
+      .collection("grades")
+      .doc(prop.match.params.gradeID);
+
+    firestoreDoc
+      .get()
+      .then((doc) => {
+        setGradeInfo(doc.data());
+        console.log("Got Data", doc.data());
+        firestoreDoc
+          .collection("students")
+          .get()
+          .then((docs) =>
+            setStudentInfo(
+              docs.docs.reduce(
+                (prev, curr) => ({
+                  ...prev,
+                  [curr.id]: curr.data(),
+                }),
+                {}
+              )
+            )
+          )
+          .catch((err) => {
+            console.error(err);
+          });
+      })
+      .catch((err) => {
+        console.error(err);
+        setGradeInfo(null);
+      });
+  }, [prop.match.params.gradeID]);
+  console.log(studentInfo);
 
   // Start Steps
   // Need to optimize using react hooks
@@ -126,6 +161,8 @@ function ExportToHisnet(prop) {
             homeworkInfo={homeworkInfo}
             hakbuns={hakbuns}
             selectedStudent={selectedStudent}
+            gradeInfo={gradeInfo}
+            studentInfo={studentInfo}
           />
         );
       default:
@@ -274,48 +311,6 @@ function ExportToHisnet(prop) {
             </Button>
           </Paper>
         )}
-      </div>
-
-      {/* 아래는 레퍼런스 */}
-      <div>
-        {studentInfo &&
-          Object.values(studentInfo).map((student, index) => (
-            <div key={student.hakbun} className="onestu">
-              <h3>{student.hakbun}</h3>
-              <Button onClick={copyToClipboard}>클립보드 복사</Button>
-              <h4>
-                총점:{" "}
-                {
-                  +Number.parseFloat(
-                    Object.values(student.points).reduce((prev, curr) => {
-                      return prev + +(curr.point || 0);
-                    }, 0) * (student.late ? 1 - gradeInfo.late_deduct : 1)
-                  ).toFixed(2)
-                }
-                {/* {Object.values(student.points).reduce((prev, curr) => {
-                  return +Number.parseFloat(prev + +(curr.point || 0)).toFixed(
-                    2
-                  );
-                }, 0)} */}
-              </h4>
-              <div className="deduct">
-                {Object.keys(student.points)
-                  .filter((pointId) => student.points[pointId].deduct > 0)
-                  .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
-                  .map((pointId) => (
-                    <div key={pointId}>
-                      <div>
-                        (-{student.points[pointId].deduct}){" "}
-                        {student.points[pointId].desc}
-                      </div>
-                    </div>
-                  ))}
-                {student.late && (
-                  <div>Late: {(gradeInfo.late_deduct || 0) * 100}% 감점</div>
-                )}
-              </div>
-            </div>
-          ))}
       </div>
     </div>
   );
