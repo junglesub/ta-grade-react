@@ -1,6 +1,7 @@
 const urls = {
   prod: {
-    hisnet_grade: "",
+    hisnet_grade:
+      "https://4lwodb5gg7.execute-api.us-east-1.amazonaws.com/dev/his",
   },
   dev: {
     hisnet_grade: "http://localhost:4000/dev/his",
