@@ -79,11 +79,13 @@ function ExportToHisnet(prop) {
           )
           .catch((err) => {
             console.error(err);
+            setErrors((state) => [...state, err.toString()]);
           });
       })
       .catch((err) => {
         console.error(err);
         setGradeInfo(null);
+        setErrors((state) => [...state, err.toString()]);
       });
   }, [prop.match.params.gradeID]);
   console.log(studentInfo);
@@ -240,6 +242,7 @@ function ExportToHisnet(prop) {
       .catch((err) => {
         console.error(err);
         setGradeInfo(null);
+        setErrors((state) => [...state, err.toString()]);
       });
   }, [prop.match.params.gradeID]);
 
