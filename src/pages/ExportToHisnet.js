@@ -18,6 +18,7 @@ import "./StudentView.css";
 import GetClass from "../components/hisnet/GetClass";
 import GetHomework from "../components/hisnet/GetHomework";
 import GetStudents from "../components/hisnet/GetStudents";
+import SendGrade from "../components/hisnet/SendGrade";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,6 +48,8 @@ function ExportToHisnet(prop) {
 
   // User Hisnet Data
   const [token, setToken] = useState("");
+
+  // Get 성적 Grade
 
   // Start Steps
   // Need to optimize using react hooks
@@ -113,6 +116,16 @@ function ExportToHisnet(prop) {
             setHakbuns={setHakbuns}
             selectedStudent={selectedStudent}
             setSelectedStudent={setSelectedStudent}
+          />
+        );
+      case 4:
+        return (
+          <SendGrade
+            token={token}
+            classInfo={classInfo}
+            homeworkInfo={homeworkInfo}
+            hakbuns={hakbuns}
+            selectedStudent={selectedStudent}
           />
         );
       default:
