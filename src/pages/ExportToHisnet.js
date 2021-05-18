@@ -19,6 +19,8 @@ import GetClass from "../components/hisnet/GetClass";
 import GetHomework from "../components/hisnet/GetHomework";
 import GetStudents from "../components/hisnet/GetStudents";
 import SendGrade from "../components/hisnet/SendGrade";
+import axios from "axios";
+import { url_config } from "../url_config";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -270,6 +272,22 @@ function ExportToHisnet(prop) {
       <em>[경고] 아직 테스트 중입니다. 문제가 발생할 수 있습니다!!</em>
       <div>
         <h1>{gradeInfo.gradeName}</h1>
+      </div>
+      <div>
+        <p>사용 완료 후에 로그아웃 버튼을 꼭!! 눌러주세요.</p>
+        <Button
+          color="secondary"
+          disabled={!token}
+          onClick={() => {
+            axios
+              .post(`${url_config.hisnet_grade}/signout`, {
+                token,
+              })
+              .then(() => setToken(""));
+          }}
+        >
+          Logout
+        </Button>
       </div>
 
       <div className={classes.root}>
