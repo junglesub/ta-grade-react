@@ -31,7 +31,7 @@ export default function GetHomework({
       setOptions(homeworks);
       console.log(homeworks);
     })();
-  }, [loading, token]);
+  }, [loading, token, classInfo.code, classInfo.ban]);
 
   React.useEffect(() => {
     if (!open) {

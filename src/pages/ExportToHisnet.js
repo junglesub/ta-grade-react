@@ -243,19 +243,7 @@ function ExportToHisnet(prop) {
       });
   }, [prop.match.params.gradeID]);
 
-  const copyToClipboard = (event) => {
-    const deduct =
-      event.target.parentElement.parentElement.getElementsByClassName(
-        "deduct"
-      )[0].innerText;
-
-    navigator.clipboard.writeText(deduct).catch((e) => {
-      console.error(e);
-      setErrors((state) => [...state, "Error: " + e.toString()]);
-    });
-  };
-
-  document.title = `${prop.match.params.gradeID} 기록`;
+  document.title = `${prop.match.params.gradeID} 내보내기`;
 
   return gradeInfo === null || !gradeInfo === {} ? (
     <h1>Error</h1>
