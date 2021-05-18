@@ -400,11 +400,6 @@ function Grade(prop) {
                           options={[
                             ...(point.deducts || []),
                             { uuid: 0, deduct: 0, desc: "없음" },
-                            {
-                              uuid: null,
-                              deduct: 0.2,
-                              desc: "hello",
-                            },
                           ]}
                           fullWidth
                           freeSolo
