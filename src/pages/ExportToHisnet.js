@@ -17,6 +17,7 @@ import { firebaseApp } from "../lib/firebaseApp";
 import "./StudentView.css";
 import GetClass from "../components/hisnet/GetClass";
 import GetHomework from "../components/hisnet/GetHomework";
+import GetStudents from "../components/hisnet/GetStudents";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,6 +42,8 @@ function ExportToHisnet(prop) {
 
   const [classInfo, setClassInfo] = useState({});
   const [homeworkInfo, setHomeworkInfo] = useState({});
+  const [hakbuns, setHakbuns] = useState(undefined);
+  const [selectedStudent, setSelectedStudent] = React.useState([]);
 
   // User Hisnet Data
   const [token, setToken] = useState("");
@@ -54,7 +57,7 @@ function ExportToHisnet(prop) {
         ? `[${classInfo.code}-${classInfo.ban}] ${classInfo.name}`
         : "TA 과목 확인 및 선택",
       homeworkInfo.title || "과목 과제 리스트 확인 및 선택",
-      "학생선택",
+      `학생선택`,
       "내보내기",
     ];
   };
@@ -101,7 +104,17 @@ function ExportToHisnet(prop) {
           />
         );
       case 3:
-        return <b>Hello World!</b>;
+        return (
+          <GetStudents
+            token={token}
+            classInfo={classInfo}
+            homeworkInfo={homeworkInfo}
+            hakbuns={hakbuns}
+            setHakbuns={setHakbuns}
+            selectedStudent={selectedStudent}
+            setSelectedStudent={setSelectedStudent}
+          />
+        );
       default:
         return "Unknown step";
     }
@@ -129,6 +142,17 @@ function ExportToHisnet(prop) {
         ...state.slice(3),
       ]),
     [classInfo, token, homeworkInfo]
+  );
+  useEffect(
+    () =>
+      setFinishedStep((state) => [
+        !!token,
+        !!classInfo.name,
+        !!homeworkInfo.title,
+        !!selectedStudent.length,
+        ...state.slice(4),
+      ]),
+    [classInfo, token, homeworkInfo, selectedStudent]
   );
   console.log(jwt.decode(token), { finishedStep });
 
