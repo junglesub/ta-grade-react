@@ -1,4 +1,5 @@
 import { Button, Grid, TextField } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import React from "react";
 import { useContext } from "react";
 import { useState } from "react";
@@ -11,6 +12,7 @@ import "./GradeNew.css";
 function GradeNew(props) {
   const { currentUser } = useContext(userStore).state;
 
+  const [errors, setErrors] = useState([]);
   const [gradeName, setGradeName] = useState({
     kor: "",
     eng: "",
@@ -88,27 +90,44 @@ function GradeNew(props) {
     }
     return content;
   };
-  const saveToFirebase = () => {
-    firebaseApp
-      .firestore()
-      .collection("grades")
-      .doc(gradeName.eng)
-      .set({
-        gradeName: gradeName.kor,
-        owner: currentUser.uid,
-        ownerEmail: currentUser.email,
-        totalPoints,
-        points: gradePoints,
-      })
-      .then(() => {
-        props.history.push(`/grade/${gradeName.eng}`);
-      })
-      .catch((err) => console.error(err));
+  const saveToFirebase = async () => {
+    try {
+      const exists = await firebaseApp
+        .firestore()
+        .collection("grades")
+        .doc(gradeName.eng)
+        .get()
+        .then(() => true)
+        .catch(() => false);
+
+      if (exists) throw new Error("Already Exists");
+
+      await firebaseApp
+        .firestore()
+        .collection("grades")
+        .doc(gradeName.eng)
+        .set({
+          gradeName: gradeName.kor,
+          owner: currentUser.uid,
+          ownerEmail: currentUser.email,
+          totalPoints,
+          points: gradePoints,
+        });
+      props.history.push(`/grade/${gradeName.eng}`);
+    } catch (err) {
+      console.error(err);
+      setErrors((state) => [...state, err.toString()]);
+    }
   };
 
   console.log(gradePoints);
   return (
     <div className="GradeNew">
+      {errors.map((error) => (
+        <Alert key={error} severity="error">
+          {error}
+        </Alert>
+      ))}
       <form noValidate autoComplete="off">
         <div>
           <p>
@@ -137,6 +156,7 @@ function GradeNew(props) {
           variant="contained"
           color="primary"
           onClick={saveToFirebase}
+          disabled={!gradeName.eng}
         >
           등록
         </Button>
