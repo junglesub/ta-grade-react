@@ -23,7 +23,7 @@ function ListGrades() {
   return (
     <div>
       <h1>Grade Lists</h1>
-      <Link to="/grade/new">Add new</Link>
+      <Link to="/grade/add">Add new</Link>
       <ul>
         {grades.map((gradeId) => (
           <li key={gradeId}>
