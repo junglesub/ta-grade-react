@@ -109,7 +109,7 @@ function Grade(prop) {
       .collection("users")
       .doc(currentUser.uid)
       .get()
-      .then((data) => setApiKey(data.data().apikey));
+      .then((data) => setApiKey((data.data() && data.data().apikey) || ""));
   }, [currentUser]);
 
   const changeHakbun = (e, nextValue) => {
