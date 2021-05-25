@@ -28,7 +28,7 @@ function GradeNew(props) {
   const changeGradeName = (e) => {
     const name = e.target.value;
     const engName = engHanguel(name);
-    setGradeName({ kor: name, eng: engName });
+    setGradeName({ kor: name, eng: engName.replace(/\s/g, "-") });
   };
 
   const onInputFieldChange = ({ target }) => {
