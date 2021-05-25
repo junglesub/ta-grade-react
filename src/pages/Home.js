@@ -1,7 +1,7 @@
 import React from "react";
 import { firebaseApp } from "../lib/firebaseApp";
 import { Button } from "@material-ui/core";
-import { Link } from "react-router-dom";
+import ListGrades from "../components/ListGrades";
 
 function Home() {
   return (
@@ -16,7 +16,8 @@ function Home() {
         Logout
       </Button>
       <div>
-        <Link to="/grade">/grade</Link>
+        <ListGrades />
+        {/* <Link to="/grade">/grade</Link> */}
       </div>
     </div>
   );

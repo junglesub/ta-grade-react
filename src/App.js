@@ -12,7 +12,6 @@ import GradeView from "./pages/GradeView";
 import GradeDownload from "./pages/GradeDownload";
 import GradeButtons from "./components/GradeButtons";
 import StudentView from "./pages/StudentView";
-import GradeHome from "./pages/GradeHome";
 import ExportToHisnet from "./pages/ExportToHisnet";
 
 function App() {
@@ -29,7 +28,7 @@ function App() {
           <Route path="/grade/:gradeID" component={GradeButtons} />
           <Switch>
             <Route exact path="/grade/add" component={GradeNew} />
-            <Route exact path="/grade" component={GradeHome} />
+            {/* <Route exact path="/grade" component={GradeHome} /> */}
             <Route exact path="/grade/:gradeID/stu" component={StudentView} />
             <Route
               exact
