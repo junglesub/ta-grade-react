@@ -21,6 +21,9 @@ function GradeButtons(prop) {
       <Button component={Link} to={`${rootLink}/hisnet`}>
         Hisnet
       </Button>
+      <Button component={Link} to={`${rootLink}/delete`} color="secondary">
+        Delete
+      </Button>
       <Button component={Link} to={`/grade/add`} color="primary">
         Add
       </Button>
