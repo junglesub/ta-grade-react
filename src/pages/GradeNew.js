@@ -19,6 +19,8 @@ function GradeNew(props) {
   });
   const [gradePoints, setGradePoints] = useState([]);
 
+  const [latededuct, setLateDeduct] = useState(0.2);
+
   const totalPoints = gradePoints.reduce(
     (prev, curr) => (prev += +curr.point || 0),
     0
@@ -108,6 +110,7 @@ function GradeNew(props) {
           ownerEmail: currentUser.email,
           totalPoints,
           points: gradePoints,
+          late_deduct: latededuct,
         });
       props.history.push(`/grade/${gradeName.eng}`);
     } catch (err) {
@@ -139,9 +142,22 @@ function GradeNew(props) {
             <div>ID: {gradeName.eng}</div>
             <TextField
               variant="outlined"
+              id="input-latededuct"
+              label="Late Deduct"
+              value={latededuct}
+              InputProps={{
+                style: {
+                  color: "red",
+                },
+              }}
+              onChange={(e) => setLateDeduct(e.target.value)}
+            />
+            <TextField
+              variant="outlined"
               id="input-totalPointes"
               label="totalPoints"
               value={totalPoints}
+              disabled
             />
           </div>
           <hr />
