@@ -1,4 +1,5 @@
 import { Button } from "@material-ui/core";
+import { Alert } from "@material-ui/lab";
 import React, { useContext, useState } from "react";
 import { firebaseApp } from "../lib/firebaseApp";
 import { userStore } from "../stores/userStore";
@@ -6,9 +7,12 @@ import { userStore } from "../stores/userStore";
 function GradeDelete(prop) {
   const { currentUser } = useContext(userStore).state;
   const [deleted, setDeleted] = useState("");
+
+  document.title = `${prop.match.params.gradeID} 영구삭제`;
+
   return (
     <div>
-      <p>삭제가 되면 복구가 안됩니다.</p>
+      <Alert severity="warning">삭제를 할 경우 복구가 안됩니다.</Alert>
       <Button
         variant="contained"
         disabled={!currentUser}
