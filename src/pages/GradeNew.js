@@ -43,15 +43,11 @@ function GradeNew(props) {
       newValue = [...newValue, ...Array(gradePoints.length - index)];
     }
 
-    newValue = [
-      ...newValue.slice(0, index),
-      {
-        pointId: `${gradeName.eng}-${index}`,
-        ...newValue[index],
-        [type]: target.value,
-      },
-      ...newValue.slice(index + 1),
-    ];
+    newValue[index] = {
+      pointId: `${gradeName.eng}-${index}`,
+      ...newValue[index],
+      [type]: target.value,
+    };
 
     setGradePoints(newValue);
 
