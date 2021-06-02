@@ -25,7 +25,6 @@ function GetLogin({ setToken }) {
   };
 
   const loginUser = async () => {
-    console.log(hisnetIdRef.current.value, hisnetPwRef.current.value);
     try {
       const token = (
         await axios.post(`${url_config.hisnet_grade}/login`, {

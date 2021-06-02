@@ -60,7 +60,10 @@ export default function SendGrade({
                     (pointId) =>
                       `(-${studentInfo[value].points[pointId].deduct}) ${studentInfo[value].points[pointId].desc}`
                   )
-                  .join("\n")
+                  .join("\n") +
+                (studentInfo[value].late
+                  ? `\n\nLate: ${(gradeInfo.late_deduct || 0) * 100}% 감점`
+                  : "")
               : "",
           })
           .then(() => {
