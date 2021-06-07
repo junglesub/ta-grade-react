@@ -5,6 +5,7 @@ import {
   CardMedia,
   Checkbox,
   CircularProgress,
+  FormControlLabel,
   Grid,
   IconButton,
   Table,
@@ -76,6 +77,7 @@ function Grade(prop) {
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState([]);
   const [needSave, setNeedSave] = useState(false);
+  const [assumeFullCredit, setAssumeFullCredit] = useState(false);
   const [studentPInfo, setStudentPInfo] = useState({});
   const [apiKey, setApiKey] = useState("");
   const [visPro, setVisPro] = useState(
@@ -114,10 +116,35 @@ function Grade(prop) {
 
   const changeHakbun = (e, nextValue) => {
     console.log(defaultCurrentScore);
-    setCurrentScore((state) => ({ ...defaultCurrentScore, hakbun: nextValue }));
     if (Object.keys(studentInfo).includes(nextValue)) {
       console.log("Found User");
-      setCurrentScore((state) => ({ ...state, ...studentInfo[nextValue] }));
+      setCurrentScore({
+        ...defaultCurrentScore,
+        hakbun: nextValue,
+        ...studentInfo[nextValue],
+      });
+    } else {
+      console.log("New User");
+      const currentScore = {
+        ...defaultCurrentScore,
+        hakbun: nextValue,
+        points: assumeFullCredit
+          ? gradeInfo.points.reduce(
+              (prev, curr) => ({
+                ...prev,
+                [curr.pointId]: curr.deducts.find((d) => d.uuid === 0),
+              }),
+              {}
+            )
+          : {},
+      };
+      setCurrentScore(currentScore);
+      setNeedSave(true);
+      if (assumeFullCredit) {
+        console.log("STATE:", currentScore);
+        console.log("before", currentScore);
+        saveHandler(currentScore);
+      }
     }
   };
 
@@ -205,7 +232,8 @@ function Grade(prop) {
     setCurrentScore(defaultCurrentScore);
   };
 
-  const saveHandler = async () => {
+  const saveHandler = async (currentScore) => {
+    console.log("Saving", currentScore);
     setSaving(true);
     try {
       // Save Student's data
@@ -315,6 +343,21 @@ function Grade(prop) {
             clearOnBlur
             onChange={changeHakbun}
           />
+          <div>
+            <h4>Options</h4>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={assumeFullCredit}
+                  onChange={(event) => {
+                    setAssumeFullCredit(event.target.checked);
+                  }}
+                  name="assumefullcredit"
+                />
+              }
+              label="새로운 학생 채점시 만점 가정 (학생 추가시 만점으로 저장)"
+            />
+          </div>
         </Grid>
         <Grid item>
           {Object.keys(studentPInfo).length !== 0 && (
@@ -502,7 +545,7 @@ function Grade(prop) {
               disabled={!currentScore.hakbun || saving}
               variant="contained"
               color="primary"
-              onClick={saveHandler}
+              onClick={() => saveHandler(currentScore)}
             >
               저장
             </Button>
