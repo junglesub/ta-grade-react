@@ -220,6 +220,7 @@ function Grade(prop) {
 
   const lateHandler = (event, nextValue) => {
     console.log(nextValue);
+    setNeedSave(true);
     setCurrentScore((state) => ({
       ...state,
       late: nextValue,
@@ -290,7 +291,7 @@ function Grade(prop) {
   } else {
     window.onbeforeunload = undefined;
   }
-  document.title = `${currentScore.hakbun || "N/A"} 성적`;
+  document.title = `${needSave ? "*" : ""}${currentScore.hakbun || "N/A"} 성적`;
 
   // Profile
 
@@ -539,7 +540,7 @@ function Grade(prop) {
           </TableContainer>
           <div className="buttons">
             <Button variant="contained" onClick={resetHandler}>
-              초기화
+              취소
             </Button>
             <Button
               disabled={!currentScore.hakbun || saving}
