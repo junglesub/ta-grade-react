@@ -46,9 +46,10 @@ function StudentView(prop) {
   }, [prop.match.params.gradeID]);
 
   const copyToClipboard = (event) => {
-    const deduct = event.target.parentElement.parentElement.getElementsByClassName(
-      "deduct"
-    )[0].innerText;
+    const deduct =
+      event.target.parentElement.parentElement.getElementsByClassName(
+        "deduct"
+      )[0].innerText;
 
     navigator.clipboard.writeText(deduct).catch((e) => {
       console.error(e);
@@ -95,14 +96,26 @@ function StudentView(prop) {
               </h4>
               <div className="deduct">
                 {Object.keys(student.points)
-                  .filter((pointId) => student.points[pointId].deduct > 0)
+                  .filter(
+                    (pointId) =>
+                      student.points[pointId].deduct > 0 ||
+                      student.points[pointId].multi
+                  )
                   .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
                   .map((pointId) => (
                     <div key={pointId}>
-                      <div>
-                        (-{student.points[pointId].deduct}){" "}
-                        {student.points[pointId].desc}
-                      </div>
+                      {student.points[pointId].multi ? (
+                        student.points[pointId].multi.map((m) => (
+                          <div key={`(-${m.deduct}) ${m.reason}`}>
+                            (-{m.deduct}) {m.reason}
+                          </div>
+                        ))
+                      ) : (
+                        <div>
+                          (-{student.points[pointId].deduct}){" "}
+                          {student.points[pointId].desc}
+                        </div>
+                      )}
                     </div>
                   ))}
                 {student.late && (
