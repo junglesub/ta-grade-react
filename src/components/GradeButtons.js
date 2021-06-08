@@ -8,9 +8,9 @@ function GradeButtons(prop) {
   return (
     <div>
       <Alert severity="warning">
-        부분점수 기능은 아직 미완성입니다.
+        부분점수 기능은 아직 미완성입니다. 버그가 있을 수 있습니다.
         <br />
-        저장은 되지만 보기 및 내보내기가 작동하지 않습니다.
+        저장과 보기는 되지만 및 내보내기가 작동하지 않습니다.
       </Alert>
       <Button component={Link} to={`${rootLink}`}>
         Grade
