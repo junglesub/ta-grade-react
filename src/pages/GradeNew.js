@@ -21,10 +21,10 @@ function GradeNew(props) {
 
   const [latededuct, setLateDeduct] = useState(0.2);
 
-  const totalPoints = gradePoints.reduce(
-    (prev, curr) => (prev += +curr.point || 0),
-    0
-  );
+  const totalPoints =
+    Math.round(
+      gradePoints.reduce((prev, curr) => (prev += +curr.point || 0), 0) * 100
+    ) / 100;
 
   // TODO: Need to optimize this
   const changeGradeName = (e) => {
