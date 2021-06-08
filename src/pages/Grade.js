@@ -411,8 +411,7 @@ function Grade(prop) {
               <TableHead>
                 <TableRow>
                   <TableCell>설명</TableCell>
-                  <TableCell width="100px">최고점수</TableCell>
-                  <TableCell width="100px">점수</TableCell>
+                  <TableCell width="80px">점수</TableCell>
                   <TableCell width="50%">감점사유</TableCell>
                 </TableRow>
               </TableHead>
@@ -423,7 +422,6 @@ function Grade(prop) {
                       <TableCell component="th" scope="row">
                         {point.name}
                       </TableCell>
-                      <TableCell align="right">{point.point}</TableCell>
                       <TableCell
                         align="right"
                         onChange={(e) =>
@@ -440,6 +438,7 @@ function Grade(prop) {
                               : ""
                           }
                         />
+                        /{point.point}
                       </TableCell>
                       <TableCell align="center">
                         {/* <TextField fullWidth /> */}
@@ -522,8 +521,6 @@ function Grade(prop) {
                           : sum * -(gradeInfo.late_deduct || 0)
                       ).toFixed(2)
                     }
-                  </TableCell>
-                  <TableCell>
                     <Checkbox
                       checked={currentScore.late || false}
                       onChange={lateHandler}
@@ -534,9 +531,9 @@ function Grade(prop) {
                   <TableCell component="th" scope="row">
                     합계
                   </TableCell>
-                  <TableCell align="right">{gradeInfo.totalPoints}</TableCell>
                   <TableCell align="right">
-                    {sum} ({Math.round((sum / gradeInfo.totalPoints) * 100)}%)
+                    {sum}/{gradeInfo.totalPoints} (
+                    {Math.round((sum / gradeInfo.totalPoints) * 100)}%)
                   </TableCell>
                   <TableCell align="center"></TableCell>
                 </StyledSumTableRow>
