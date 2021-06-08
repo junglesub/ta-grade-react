@@ -1,6 +1,6 @@
 .App > div {
-  border: 1px solid black;
-  max-width: 900px;
+  /* border: 1px solid black; */
+  max-width: 1400px;
   margin: auto;
   min-height: 100vh;
   padding: 1em;
