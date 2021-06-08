@@ -165,7 +165,31 @@ function Grade(prop) {
       const currentScore = {
         ...defaultCurrentScore,
         hakbun: nextValue,
-        points: assumeFullCredit
+        points: gradeInfo.points.reduce((prev, curr) => {
+          if (curr.multiDeduct) {
+            return {
+              ...prev,
+              [curr.pointId]: {
+                multi: [],
+                point: curr.point,
+              },
+            };
+          } else if (assumeFullCredit)
+            return {
+              ...prev,
+              [curr.pointId]: {
+                uuid: 0,
+                deduct: 0,
+                desc: "없음",
+                point: curr.point,
+              },
+            };
+          return { ...prev };
+        }, {}),
+      };
+      console.log(currentScore);
+      /*
+      assumeFullCredit
           ? gradeInfo.points.reduce(
               (prev, curr) => ({
                 ...prev,
@@ -179,7 +203,7 @@ function Grade(prop) {
               {}
             )
           : {},
-      };
+      */
       setCurrentScore(currentScore);
       setNeedSave(true);
       if (assumeFullCredit) {
@@ -193,29 +217,22 @@ function Grade(prop) {
   const onToggleMultiSelect = (point, item, e, nv) => {
     console.log(point, item, e, nv);
     const newObject = { ...currentScore };
-    const multi =
+    let multi =
       (newObject.points[point.pointId] &&
         newObject.points[point.pointId].multi) ||
       [];
 
     if (nv) multi.push(item);
     else {
-      const index = multi.indexOf(item);
-      if (index > -1) {
-        multi.splice(index, 1);
-      }
+      multi = multi.filter(
+        (curr) => !(curr.deduct === item.deduct && curr.reason === item.reason)
+      );
     }
 
     newObject.points[point.pointId] = {
       multi,
       point:
-        point.point -
-        (currentScore.points[point.pointId]
-          ? currentScore.points[point.pointId].multi.reduce(
-              (prev, curr) => (prev += curr.deduct),
-              0
-            )
-          : 0),
+        point.point - multi.reduce((prev, curr) => (prev += curr.deduct), 0),
     };
     setCurrentScore(newObject);
   };
@@ -530,7 +547,13 @@ function Grade(prop) {
                                               currentScore.points[point.pointId]
                                                 ? currentScore.points[
                                                     point.pointId
-                                                  ].multi.indexOf(item) >= 0
+                                                  ].multi.find(
+                                                    (search) =>
+                                                      search.deduct ===
+                                                        item.deduct &&
+                                                      search.reason ===
+                                                        item.reason
+                                                  ) !== undefined
                                                 : false
                                             }
                                             onChange={(e, nv) =>
