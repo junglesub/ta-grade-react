@@ -132,7 +132,12 @@ function Grade(prop) {
           ? gradeInfo.points.reduce(
               (prev, curr) => ({
                 ...prev,
-                [curr.pointId]: { uuid: 0, deduct: 0, desc: "없음" },
+                [curr.pointId]: {
+                  uuid: 0,
+                  deduct: 0,
+                  desc: "없음",
+                  point: curr.point,
+                },
               }),
               {}
             )
@@ -356,7 +361,7 @@ function Grade(prop) {
                   name="assumefullcredit"
                 />
               }
-              label="새로운 학생 채점시 만점 가정 (학생 추가시 만점으로 저장)"
+              label="새로운 학생 추가시 만점으로 저장"
             />
           </div>
         </Grid>
