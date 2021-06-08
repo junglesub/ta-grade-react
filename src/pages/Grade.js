@@ -671,6 +671,7 @@ function Grade(prop) {
                                         points: newPoint,
                                       }));
                                       return;
+                                    default:
                                   }
                                   return;
                                 }
