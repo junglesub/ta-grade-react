@@ -279,112 +279,154 @@ function GradeView(prop) {
               </TableHead>
               <TableBody>
                 {gradeInfo.points &&
-                  gradeInfo.points.map(
-                    (point, index) =>
-                      point.deducts &&
-                      point.deducts.map((deduct) => (
-                        <StyledTableRow
-                          className={`cl-${index % 2}`}
-                          style={index % 2 ? { backgroundColor: "#eee" } : {}}
-                          key={`${point.pointId}-${deduct.uuid}`}
-                        >
-                          <TableCell component="th" scope="row">
-                            {changing === "" ? (
-                              <IconButton
-                                name={`${point.pointId}-${deduct.uuid}`}
-                                size="small"
-                                aria-label="edit"
-                                onClick={() =>
-                                  startEditMode(
-                                    `${point.pointId}-${deduct.uuid}`,
-                                    point,
-                                    deduct
-                                  )
-                                }
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
-                            ) : (
-                              changing ===
-                                `${point.pointId}-${deduct.uuid}` && (
+                  gradeInfo.points.map((point, index) => {
+                    if (point.multiDeduct) {
+                      return (
+                        point.multiReason &&
+                        point.multiReason.map((mult) => (
+                          <StyledTableRow
+                            className={`cl-${index % 2}`}
+                            style={index % 2 ? { backgroundColor: "#eee" } : {}}
+                            key={`${point.pointId}-${mult.reason}`}
+                          >
+                            <TableCell>(Multi) {point.name}</TableCell>
+                            <TableCell>{mult.reason}</TableCell>
+                            <TableCell align="center">{mult.deduct}</TableCell>
+                            <TableCell align="center">
+                              {Object.values(studentInfo)
+                                .map((student) => {
+                                  return student.points[
+                                    point.pointId
+                                  ].multi.find(
+                                    (search) =>
+                                      search.deduct === mult.deduct &&
+                                      search.reason === mult.reason
+                                  ) !== undefined
+                                    ? student.hakbun
+                                    : null;
+                                })
+                                .filter((item) => !!item)
+                                .join(",")}
+                            </TableCell>
+                          </StyledTableRow>
+                        ))
+                      );
+                    } else
+                      return (
+                        point.deducts &&
+                        point.deducts.map((deduct) => (
+                          <StyledTableRow
+                            className={`cl-${index % 2}`}
+                            style={index % 2 ? { backgroundColor: "#eee" } : {}}
+                            key={`${point.pointId}-${deduct.uuid}`}
+                          >
+                            <TableCell component="th" scope="row">
+                              {changing === "" ? (
                                 <IconButton
-                                  aria-label="done"
+                                  name={`${point.pointId}-${deduct.uuid}`}
                                   size="small"
-                                  onClick={() => {
-                                    finishEditMode(
-                                      point.pointId,
+                                  aria-label="edit"
+                                  onClick={() =>
+                                    startEditMode(
+                                      `${point.pointId}-${deduct.uuid}`,
                                       point,
                                       deduct
-                                    );
-                                  }}
+                                    )
+                                  }
                                 >
-                                  <DoneIcon fontSize="small" />
+                                  <EditIcon fontSize="small" />
                                 </IconButton>
-                              )
-                            )}
+                              ) : (
+                                changing ===
+                                  `${point.pointId}-${deduct.uuid}` && (
+                                  <IconButton
+                                    aria-label="done"
+                                    size="small"
+                                    onClick={() => {
+                                      finishEditMode(
+                                        point.pointId,
+                                        point,
+                                        deduct
+                                      );
+                                    }}
+                                  >
+                                    <DoneIcon fontSize="small" />
+                                  </IconButton>
+                                )
+                              )}
 
-                            {changing === `${point.pointId}-${deduct.uuid}` ? (
-                              <TextField
-                                name="pointname"
-                                onChange={changeEditField}
-                                value={changedValue.pointname}
-                              />
-                            ) : (
-                              point.name
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {changing === `${point.pointId}-${deduct.uuid}` ? (
-                              <TextField
-                                name="deductdesc"
-                                multiline
-                                onChange={changeEditField}
-                                value={changedValue.deductdesc}
-                              />
-                            ) : (
-                              deduct.desc
-                            )}
-                          </TableCell>
-                          <TableCell align="center">
-                            {changing === `${point.pointId}-${deduct.uuid}` ? (
-                              <TextField
-                                name="deductdeduct"
-                                onChange={changeEditField}
-                                value={changedValue.deductdeduct}
-                              />
-                            ) : (
-                              -deduct.deduct
-                            )}{" "}
-                            ({point.point})
-                            <div
-                              style={{ textAlign: "center", color: "darkblue" }}
-                            >
-                              {
-                                (
-                                  deducter[`${point.pointId}-${deduct.uuid}`] ||
-                                  []
-                                ).length
-                              }
-                              /{Object.keys(studentInfo).length} (
-                              {Math.round(
-                                ((
-                                  deducter[`${point.pointId}-${deduct.uuid}`] ||
-                                  []
-                                ).length /
-                                  Object.keys(studentInfo).length) *
-                                  10000
-                              ) / 100}
-                              %)
-                            </div>
-                          </TableCell>
-                          <TableCell align="center">
-                            {(
-                              deducter[`${point.pointId}-${deduct.uuid}`] || []
-                            ).join(", ")}
-                          </TableCell>
-                        </StyledTableRow>
-                      ))
-                  )}
+                              {changing ===
+                              `${point.pointId}-${deduct.uuid}` ? (
+                                <TextField
+                                  name="pointname"
+                                  onChange={changeEditField}
+                                  value={changedValue.pointname}
+                                />
+                              ) : (
+                                point.name
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {changing ===
+                              `${point.pointId}-${deduct.uuid}` ? (
+                                <TextField
+                                  name="deductdesc"
+                                  multiline
+                                  onChange={changeEditField}
+                                  value={changedValue.deductdesc}
+                                />
+                              ) : (
+                                deduct.desc
+                              )}
+                            </TableCell>
+                            <TableCell align="center">
+                              {changing ===
+                              `${point.pointId}-${deduct.uuid}` ? (
+                                <TextField
+                                  name="deductdeduct"
+                                  onChange={changeEditField}
+                                  value={changedValue.deductdeduct}
+                                />
+                              ) : (
+                                -deduct.deduct
+                              )}{" "}
+                              ({point.point})
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  color: "darkblue",
+                                }}
+                              >
+                                {
+                                  (
+                                    deducter[
+                                      `${point.pointId}-${deduct.uuid}`
+                                    ] || []
+                                  ).length
+                                }
+                                /{Object.keys(studentInfo).length} (
+                                {Math.round(
+                                  ((
+                                    deducter[
+                                      `${point.pointId}-${deduct.uuid}`
+                                    ] || []
+                                  ).length /
+                                    Object.keys(studentInfo).length) *
+                                    10000
+                                ) / 100}
+                                %)
+                              </div>
+                            </TableCell>
+                            <TableCell align="center">
+                              {(
+                                deducter[`${point.pointId}-${deduct.uuid}`] ||
+                                []
+                              ).join(", ")}
+                            </TableCell>
+                          </StyledTableRow>
+                        ))
+                      );
+                  })}
                 <TableRow style={{ backgroundColor: "#FFCCCB" }}>
                   <TableCell component="th" scope="row" colSpan={2}>
                     Late
