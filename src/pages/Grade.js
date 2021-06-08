@@ -231,8 +231,9 @@ function Grade(prop) {
 
     newObject.points[point.pointId] = {
       multi,
-      point:
-        point.point - multi.reduce((prev, curr) => (prev += curr.deduct), 0),
+      point: +Number.parseFloat(
+        point.point - multi.reduce((prev, curr) => (prev += curr.deduct), 0)
+      ).toFixed(2),
     };
     setCurrentScore(newObject);
   };
@@ -531,7 +532,7 @@ function Grade(prop) {
                             <div>
                               <FormControl component="fieldset">
                                 <FormLabel component="legend">
-                                  Assign responsibility
+                                  부분감점
                                 </FormLabel>
                                 <FormGroup>
                                   {point.multiReason.map((item) => {
@@ -544,7 +545,11 @@ function Grade(prop) {
                                         control={
                                           <Checkbox
                                             checked={
+                                              currentScore.points[
+                                                point.pointId
+                                              ] &&
                                               currentScore.points[point.pointId]
+                                                .multi
                                                 ? currentScore.points[
                                                     point.pointId
                                                   ].multi.find(
