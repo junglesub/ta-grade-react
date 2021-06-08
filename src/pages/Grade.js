@@ -5,7 +5,10 @@ import {
   CardMedia,
   Checkbox,
   CircularProgress,
+  FormControl,
   FormControlLabel,
+  FormGroup,
+  FormLabel,
   Grid,
   IconButton,
   Table,
@@ -28,6 +31,7 @@ import { firebaseApp } from "../lib/firebaseApp";
 import { userStore } from "../stores/userStore";
 
 import "./Grade.css";
+import { Add } from "@material-ui/icons";
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
@@ -64,6 +68,39 @@ const useProfileStyle = makeStyles((theme) => ({
     width: 151,
   },
 }));
+
+function AddMultiInput({ addMulti }) {
+  const [deduct, setDeduct] = useState("");
+  const [reason, setReason] = useState("");
+  return (
+    <div>
+      <TextField
+        label="감점"
+        size="small"
+        className="multiDeduct"
+        onChange={(e) => setDeduct(e.target.value)}
+        value={deduct}
+      />{" "}
+      <TextField
+        label="Size"
+        size="small"
+        onChange={(e) => setReason(e.target.value)}
+        value={reason}
+      />
+      <IconButton
+        aria-label="add"
+        size="small"
+        onClick={() => {
+          addMulti(+deduct, reason);
+          setDeduct("");
+          setReason("");
+        }}
+      >
+        <Add fontSize="inherit" />
+      </IconButton>
+    </div>
+  );
+}
 
 function Grade(prop) {
   const defaultCurrentScore = {
@@ -153,7 +190,35 @@ function Grade(prop) {
     }
   };
 
-  console.log(currentScore);
+  const onToggleMultiSelect = (point, item, e, nv) => {
+    console.log(point, item, e, nv);
+    const newObject = { ...currentScore };
+    const multi =
+      (newObject.points[point.pointId] &&
+        newObject.points[point.pointId].multi) ||
+      [];
+
+    if (nv) multi.push(item);
+    else {
+      const index = multi.indexOf(item);
+      if (index > -1) {
+        multi.splice(index, 1);
+      }
+    }
+
+    newObject.points[point.pointId] = {
+      multi,
+      point:
+        point.point -
+        (currentScore.points[point.pointId]
+          ? currentScore.points[point.pointId].multi.reduce(
+              (prev, curr) => (prev += curr.deduct),
+              0
+            )
+          : 0),
+    };
+    setCurrentScore(newObject);
+  };
 
   const changeVisibility = () => {
     localStorage.setItem("visPro", !visPro);
@@ -417,7 +482,7 @@ function Grade(prop) {
               </TableHead>
               <TableBody>
                 {gradeInfo.points &&
-                  gradeInfo.points.map((point) => (
+                  gradeInfo.points.map((point, index) => (
                     <StyledTableRow key={point.pointId}>
                       <TableCell component="th" scope="row">
                         {point.name}
@@ -429,6 +494,7 @@ function Grade(prop) {
                         }
                       >
                         <TextField
+                          disabled={point.multiDeduct}
                           value={
                             // currentScore.points[point.pointId].point
                             currentScore.points[point.pointId] &&
@@ -443,66 +509,158 @@ function Grade(prop) {
                       <TableCell align="center">
                         {/* <TextField fullWidth /> */}
 
-                        <Autocomplete
-                          id={`${point.pointId}-deductmsg`}
-                          options={[
-                            ...(point.deducts || []),
-                            { uuid: 0, deduct: 0, desc: "없음" },
-                          ]}
-                          fullWidth
-                          freeSolo
-                          clearOnBlur
-                          filterOptions={(options, params) => {
-                            const filtered = createFilterOptions()(
-                              options.filter(
-                                (option) =>
-                                  option.deduct !== undefined &&
-                                  option.desc !== undefined
-                              ),
-                              params
-                            );
-                            console.log(filtered);
-
-                            return filtered;
-                          }}
-                          getOptionLabel={(option) =>
-                            `(-${option.deduct}) ${option.desc}`
-                          }
-                          value={
-                            !currentScore.points[point.pointId] ||
-                            !currentScore.points[point.pointId].desc
-                              ? null
-                              : currentScore.points[point.pointId]
-                          }
-                          onChange={(e, newValue) => {
-                            console.log(newValue);
-                            if (typeof newValue === "string") {
-                              changeScoreDeductState(point.pointId, {
-                                uuid: uuidv1(),
-                                point: currentScore.points[point.pointId].point,
-                                deduct: +Number.parseFloat(
-                                  point.point -
-                                    (currentScore.points[point.pointId] &&
+                        {point.multiDeduct ? (
+                          <div>
+                            <div>
+                              <FormControl component="fieldset">
+                                <FormLabel component="legend">
+                                  Assign responsibility
+                                </FormLabel>
+                                <FormGroup>
+                                  {point.multiReason.map((item) => {
+                                    console.log(
                                       currentScore.points[point.pointId]
-                                        .point) || 0
-                                ).toFixed(2),
-                                desc: newValue,
-                              });
-                            } else {
-                              changeScoreDeductState(point.pointId, {
-                                ...newValue,
-                                point: +Number.parseFloat(
-                                  point.point -
-                                    ((newValue && newValue.deduct) || 0)
-                                ).toFixed(2),
-                              });
+                                    );
+                                    return (
+                                      <FormControlLabel
+                                        key={`${item.deduct}${item.reason}`}
+                                        control={
+                                          <Checkbox
+                                            checked={
+                                              currentScore.points[point.pointId]
+                                                ? currentScore.points[
+                                                    point.pointId
+                                                  ].multi.indexOf(item) >= 0
+                                                : false
+                                            }
+                                            onChange={(e, nv) =>
+                                              onToggleMultiSelect(
+                                                point,
+                                                item,
+                                                e,
+                                                nv
+                                              )
+                                            }
+                                            name={`(-${item.deduct}) ${item.reason}`}
+                                          />
+                                        }
+                                        label={`(-${item.deduct}) ${item.reason}`}
+                                      />
+                                    );
+                                  })}
+                                </FormGroup>
+                                {/* <FormHelperText>Be careful</FormHelperText> */}
+                              </FormControl>
+                              {/* {point.multiReason.map((item) => )} */}
+                            </div>
+                            <AddMultiInput
+                              addMulti={(deduct, reason) => {
+                                const newPoint = [...gradeInfo.points];
+                                newPoint[index].multiReason.push({
+                                  deduct,
+                                  reason,
+                                });
+                                // console.log(gradeInfo);
+                                console.log({
+                                  ...gradeInfo,
+                                  points: newPoint,
+                                });
+                                setGradeInfo((state) => ({
+                                  ...state,
+                                  points: newPoint,
+                                }));
+                                return;
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <Autocomplete
+                            id={`${point.pointId}-deductmsg`}
+                            options={[
+                              ...(point.deducts || []),
+                              { uuid: 0, deduct: 0, desc: "없음" },
+                              {
+                                uuid: -1,
+                                deduct: "N/A",
+                                desc: "다중 감점 모드",
+                              },
+                            ]}
+                            fullWidth
+                            freeSolo
+                            clearOnBlur
+                            filterOptions={(options, params) => {
+                              const filtered = createFilterOptions()(
+                                options.filter(
+                                  (option) =>
+                                    option.deduct !== undefined &&
+                                    option.desc !== undefined
+                                ),
+                                params
+                              );
+                              console.log(filtered);
+
+                              return filtered;
+                            }}
+                            getOptionLabel={(option) =>
+                              `(-${option.deduct}) ${option.desc}`
                             }
-                            // setTest(newValue);
-                          }}
-                          // changeScoreDeductState(point.pointId, e)
-                          // style={{ width: 300 }}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
+                            value={
+                              !currentScore.points[point.pointId] ||
+                              !currentScore.points[point.pointId].desc
+                                ? null
+                                : currentScore.points[point.pointId]
+                            }
+                            onChange={(e, newValue) => {
+                              console.log(newValue);
+                              if (typeof newValue === "string") {
+                                changeScoreDeductState(point.pointId, {
+                                  uuid: uuidv1(),
+                                  point:
+                                    currentScore.points[point.pointId].point,
+                                  deduct: +Number.parseFloat(
+                                    point.point -
+                                      (currentScore.points[point.pointId] &&
+                                        currentScore.points[point.pointId]
+                                          .point) || 0
+                                  ).toFixed(2),
+                                  desc: newValue,
+                                });
+                              } else {
+                                // 다중감점 모드일시
+                                if (newValue !== null && newValue.uuid < 0) {
+                                  switch (newValue.uuid) {
+                                    case -1:
+                                      const newPoint = [...gradeInfo.points];
+                                      newPoint[index].multiDeduct = true;
+                                      newPoint[index].multiReason = [];
+                                      // console.log(gradeInfo);
+                                      console.log({
+                                        ...gradeInfo,
+                                        points: newPoint,
+                                      });
+                                      setGradeInfo((state) => ({
+                                        ...state,
+                                        points: newPoint,
+                                      }));
+                                      return;
+                                  }
+                                  return;
+                                }
+                                changeScoreDeductState(point.pointId, {
+                                  ...newValue,
+                                  point: +Number.parseFloat(
+                                    point.point -
+                                      ((newValue && newValue.deduct) || 0)
+                                  ).toFixed(2),
+                                });
+                              }
+                              // setTest(newValue);
+                            }}
+                            // changeScoreDeductState(point.pointId, e)
+                            // style={{ width: 300 }}
+                            renderInput={(params) => <TextField {...params} />}
+                          />
+                        )}
                       </TableCell>
                     </StyledTableRow>
                   ))}
