@@ -5,3 +5,10 @@
 .Grade .buttons > * {
   margin: 1em;
 }
+
+.Grade .buttons {
+  position: sticky;
+  background-color: #fff;
+  bottom: 0;
+  /* bottom: 20px; */
+}
