@@ -31,6 +31,11 @@ export default function SendGrade({
   const updateScore = () => {
     const allUpdates = selectedStudent.map((value) => {
       return new Promise((res, rej) => {
+        if (!studentInfo[value]) {
+          setResponse((state) => ({ ...state, [value]: "Grade Not Found..." }));
+          res();
+          return;
+        }
         setResponse((state) => ({ ...state, [value]: "Updating..." }));
         axios
           .post(`${url_config.hisnet_grade}/score`, {
@@ -53,12 +58,18 @@ export default function SendGrade({
             content: studentInfo[value]
               ? Object.keys(studentInfo[value].points)
                   .filter(
-                    (pointId) => studentInfo[value].points[pointId].deduct > 0
+                    (pointId) =>
+                      studentInfo[value].points[pointId].deduct > 0 ||
+                      studentInfo[value].points[pointId].multi
                   )
                   .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
-                  .map(
-                    (pointId) =>
-                      `(-${studentInfo[value].points[pointId].deduct}) ${studentInfo[value].points[pointId].desc}`
+                  .map((pointId) =>
+                    studentInfo[value].points[pointId].multi
+                      ? studentInfo[value].points[pointId].multi
+                          .filter((m) => m.deduct !== 0)
+                          .map((m) => `(-${m.deduct}) ${m.reason}`)
+                          .join("\n")
+                      : `(-${studentInfo[value].points[pointId].deduct}) ${studentInfo[value].points[pointId].desc}`
                   )
                   .join("\n") +
                 (studentInfo[value].late
