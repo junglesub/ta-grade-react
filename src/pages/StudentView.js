@@ -105,11 +105,13 @@ function StudentView(prop) {
                   .map((pointId) => (
                     <div key={pointId}>
                       {student.points[pointId].multi ? (
-                        student.points[pointId].multi.map((m) => (
-                          <div key={`(-${m.deduct}) ${m.reason}`}>
-                            (-{m.deduct}) {m.reason}
-                          </div>
-                        ))
+                        student.points[pointId].multi
+                          .filter((m) => m.deduct !== 0)
+                          .map((m) => (
+                            <div key={`(-${m.deduct}) ${m.reason}`}>
+                              (-{m.deduct}) {m.reason}
+                            </div>
+                          ))
                       ) : (
                         <div>
                           (-{student.points[pointId].deduct}){" "}
