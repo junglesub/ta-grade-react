@@ -2,6 +2,7 @@ import { Button } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 import React, { useEffect, useState } from "react";
 import { firebaseApp } from "../lib/firebaseApp";
+import { gradeReasonCombine } from "../lib/gradeReasonCombine";
 
 import "./StudentView.css";
 
@@ -75,57 +76,60 @@ function StudentView(prop) {
       </div>
       <div>
         {studentInfo &&
-          Object.values(studentInfo).map((student, index) => (
-            <div key={student.hakbun} className="onestu">
-              <h3>{student.hakbun}</h3>
-              <Button onClick={copyToClipboard}>클립보드 복사</Button>
-              <h4>
-                총점:{" "}
-                {
-                  +Number.parseFloat(
-                    Object.values(student.points).reduce((prev, curr) => {
-                      return prev + +(curr.point || 0);
-                    }, 0) * (student.late ? 1 - gradeInfo.late_deduct : 1)
-                  ).toFixed(2)
-                }
-                {/* {Object.values(student.points).reduce((prev, curr) => {
+          Object.values(studentInfo).map((student, index) => {
+            const studentCpy = gradeReasonCombine(student);
+            return (
+              <div key={studentCpy.hakbun} className="onestu">
+                <h3>{studentCpy.hakbun}</h3>
+                <Button onClick={copyToClipboard}>클립보드 복사</Button>
+                <h4>
+                  총점:{" "}
+                  {
+                    +Number.parseFloat(
+                      Object.values(studentCpy.points).reduce((prev, curr) => {
+                        return prev + +(curr.point || 0);
+                      }, 0) * (studentCpy.late ? 1 - gradeInfo.late_deduct : 1)
+                    ).toFixed(2)
+                  }
+                  {/* {Object.values(studentCpy.points).reduce((prev, curr) => {
                   return +Number.parseFloat(prev + +(curr.point || 0)).toFixed(
                     2
                   );
                 }, 0)} */}
-              </h4>
-              <div className="deduct">
-                {Object.keys(student.points)
-                  .filter(
-                    (pointId) =>
-                      student.points[pointId].deduct > 0 ||
-                      student.points[pointId].multi
-                  )
-                  .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
-                  .map((pointId) => (
-                    <div key={pointId}>
-                      {student.points[pointId].multi ? (
-                        student.points[pointId].multi
-                          .filter((m) => m.deduct !== 0)
-                          .map((m) => (
-                            <div key={`(-${m.deduct}) ${m.reason}`}>
-                              (-{m.deduct}) {m.reason}
-                            </div>
-                          ))
-                      ) : (
-                        <div>
-                          (-{student.points[pointId].deduct}){" "}
-                          {student.points[pointId].desc}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                {student.late && (
-                  <div>Late: {(gradeInfo.late_deduct || 0) * 100}% 감점</div>
-                )}
+                </h4>
+                <div className="deduct">
+                  {Object.keys(studentCpy.points)
+                    .filter(
+                      (pointId) =>
+                        studentCpy.points[pointId].deduct > 0 ||
+                        studentCpy.points[pointId].multi
+                    )
+                    .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
+                    .map((pointId) => (
+                      <div key={pointId}>
+                        {studentCpy.points[pointId].multi ? (
+                          studentCpy.points[pointId].multi
+                            .filter((m) => m.deduct !== 0)
+                            .map((m) => (
+                              <div key={`(-${m.deduct}) ${m.reason}`}>
+                                (-{m.deduct}) {m.reason}
+                              </div>
+                            ))
+                        ) : (
+                          <div>
+                            (-{studentCpy.points[pointId].deduct}){" "}
+                            {studentCpy.points[pointId].desc}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  {studentCpy.late && (
+                    <div>Late: {(gradeInfo.late_deduct || 0) * 100}% 감점</div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
       </div>
     </div>
   );
