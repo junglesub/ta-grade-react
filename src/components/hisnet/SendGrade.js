@@ -7,6 +7,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 import axios from "axios";
 import { url_config } from "../../url_config";
 import { Button } from "@material-ui/core";
+import { gradeReasonCombine } from "../../lib/gradeReasonCombine";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,6 +37,10 @@ export default function SendGrade({
           res();
           return;
         }
+
+        // Combine student Info point data
+        const student = gradeReasonCombine(studentInfo[value]);
+
         setResponse((state) => ({ ...state, [value]: "Updating..." }));
         axios
           .post(`${url_config.hisnet_grade}/score`, {
@@ -45,34 +50,31 @@ export default function SendGrade({
             contentId: homeworkInfo.contentId,
             hakbuns,
             hakbun: value,
-            point: studentInfo[value]
+            point: student
               ? +Number.parseFloat(
-                  Object.values(studentInfo[value].points).reduce(
-                    (prev, curr) => {
-                      return prev + +(curr.point || 0);
-                    },
-                    0
-                  ) * (studentInfo[value].late ? 1 - gradeInfo.late_deduct : 1)
+                  Object.values(student.points).reduce((prev, curr) => {
+                    return prev + +(curr.point || 0);
+                  }, 0) * (student.late ? 1 - gradeInfo.late_deduct : 1)
                 ).toFixed(2)
               : 0,
-            content: studentInfo[value]
-              ? Object.keys(studentInfo[value].points)
+            content: student
+              ? Object.keys(student.points)
                   .filter(
                     (pointId) =>
-                      studentInfo[value].points[pointId].deduct > 0 ||
-                      studentInfo[value].points[pointId].multi
+                      student.points[pointId].deduct > 0 ||
+                      student.points[pointId].multi
                   )
                   .sort((a, b) => +a.split("-")[1] - +b.split("-")[1])
                   .map((pointId) =>
-                    studentInfo[value].points[pointId].multi
-                      ? studentInfo[value].points[pointId].multi
+                    student.points[pointId].multi
+                      ? student.points[pointId].multi
                           .filter((m) => m.deduct !== 0)
                           .map((m) => `(-${m.deduct}) ${m.reason}`)
                           .join("\n")
-                      : `(-${studentInfo[value].points[pointId].deduct}) ${studentInfo[value].points[pointId].desc}`
+                      : `(-${student.points[pointId].deduct}) ${student.points[pointId].desc}`
                   )
                   .join("\n") +
-                (studentInfo[value].late
+                (student.late
                   ? `\n\nLate: ${(gradeInfo.late_deduct || 0) * 100}% 감점`
                   : "")
               : "",
