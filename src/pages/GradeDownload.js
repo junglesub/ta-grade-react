@@ -25,9 +25,12 @@ function GradeDownload(prop) {
       if (student.points) {
         const stuGrd = [student.hakbun];
         headerGrade.map((gpoint) => {
+          const pointItem = student.points[gpoint.pointId];
           stuGrd.push(
-            typeof student.points[gpoint.pointId] === "object"
-              ? student.points[gpoint.pointId].point
+            typeof pointItem === "object"
+              ? `${pointItem.point}${
+                  pointItem.uuid !== 0 ? ` (${pointItem.desc})` : ""
+                }`
               : ""
           );
           return null;
@@ -35,12 +38,12 @@ function GradeDownload(prop) {
         stuGrd.push(
           student.late ? `(${(gradeInfo.late_deduct || 0) * 100}%)` : ""
         );
+        // 총점
         stuGrd.push(
           Number.parseFloat(
-            stuGrd
-              .slice(1, stuGrd.length - 1)
-              .reduce((prev, curr) => prev + +curr, 0) *
-              (student.late ? 1 - gradeInfo.late_deduct : 1)
+            Object.values(student.points).reduce((prev, curr) => {
+              return prev + +(curr.point || 0);
+            }, 0) * (student.late ? 1 - gradeInfo.late_deduct : 1)
           ).toFixed(2)
         );
         printGrade.push(stuGrd);
