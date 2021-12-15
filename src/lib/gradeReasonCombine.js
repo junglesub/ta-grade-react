@@ -13,8 +13,8 @@ export const gradeReasonCombine = (student) => {
       student.points[pointId].desc && student.points[pointId].desc.trim();
     if (Object.keys(reasonMatch).includes(reason)) {
       student.points[reasonMatch[reason]].deduct = +Number.parseFloat(
-        student.points[reasonMatch[reason]].deduct +
-          student.points[pointId].deduct
+        +student.points[reasonMatch[reason]].deduct +
+          +student.points[pointId].deduct
       ).toFixed(2);
 
       student.points[pointId].deduct = 0;
