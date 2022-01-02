@@ -6,6 +6,9 @@ function GradeButtons(prop) {
   const rootLink = `/grade/${prop.match.params.gradeID}`;
   return (
     <div>
+      <Button component={Link} to="/">
+        Home
+      </Button>
       <Button component={Link} to={`${rootLink}`}>
         Grade
       </Button>
