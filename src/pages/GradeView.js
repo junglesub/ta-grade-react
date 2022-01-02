@@ -84,11 +84,19 @@ function GradeView(prop) {
 
   const startEditMode = (name, point, deduct) => {
     setChanging(name);
-    setChangedValue({
-      pointname: point.name,
-      deductdesc: deduct.desc,
-      deductdeduct: deduct.deduct,
-    });
+    if (point.multiDeduct) {
+      setChangedValue({
+        // pointname: point.name,
+        // deductdesc: deduct.desc,
+        deductdeduct: deduct.deduct,
+      });
+    } else {
+      setChangedValue({
+        pointname: point.name,
+        deductdesc: deduct.desc,
+        deductdeduct: deduct.deduct,
+      });
+    }
     console.log(name);
   };
 
@@ -105,67 +113,134 @@ function GradeView(prop) {
       progress: 0,
     }));
 
-    point.name = changedValue.pointname;
-    deduct.desc = changedValue.deductdesc;
-    deduct.deduct = changedValue.deductdeduct;
-    deduct.point = +Number.parseFloat(point.point - deduct.deduct).toFixed(2);
+    if (point.multiDeduct) {
+      const pointIndex = gradeInfo.points.findIndex(
+        (p) => p.pointId === pointId
+      );
 
-    const foundIndex = point.deducts.findIndex(
-      (elem) => elem.uuid === deduct.uuid
-    );
-    if (foundIndex > 0) {
-      point.deducts[foundIndex] = deduct;
-    }
+      const firestoreDoc = firebaseApp
+        .firestore()
+        .collection("grades")
+        .doc(prop.match.params.gradeID);
+      try {
+        if (pointIndex === -1) throw new Error("Update Point Not Found!");
 
-    console.log(point, deduct);
+        // Need to update this amount of people
+        const needToUpdateStudent = deducter[`${pointId}-${deduct.uuid}`];
+        console.log(needToUpdateStudent);
+        const totalSteps = (needToUpdateStudent || []).length;
+        addMessageToProgress("Total Steps: " + totalSteps + 1);
 
-    // Ready to Save
-    const pointIndex = gradeInfo.points.findIndex((p) => p.pointId === pointId);
-    const firestoreDoc = firebaseApp
-      .firestore()
-      .collection("grades")
-      .doc(prop.match.params.gradeID);
+        const newGradeInfo = { ...gradeInfo };
+        const mainMultIdx = newGradeInfo.points[
+          pointIndex
+        ].multiReason.findIndex((elem) => elem.reason === deduct.reason);
+        newGradeInfo.points[pointIndex].multiReason[mainMultIdx].deduct =
+          +changedValue.deductdeduct;
+        await firestoreDoc.set(newGradeInfo);
+        addMessageToProgress("Updated GradeInfo", (1 / totalSteps) * 100);
 
-    try {
-      if (pointIndex === -1) throw new Error("Update Point Not Found!");
+        // // Update Students Information
+        for (let index = 0; index < needToUpdateStudent.length; index++) {
+          const hakbun = needToUpdateStudent[index];
 
-      // Need to update this amount of people
-      const needToUpdateStudent = deducter[`${pointId}-${deduct.uuid}`];
-      const totalSteps = (needToUpdateStudent || []).length + 1;
-      addMessageToProgress("Total Steps: " + totalSteps);
+          const updatingStudent = { ...studentInfo[hakbun] };
+          const deductId = updatingStudent.points[pointId].multi.findIndex(
+            (elem) => elem.reason === deduct.reason
+          );
+          if (deductId === -1) continue;
+          updatingStudent.points[pointId].multi[deductId].deduct =
+            +changedValue.deductdeduct;
+          updatingStudent.points[pointId].point =
+            gradeInfo.points[pointIndex].point -
+            updatingStudent.points[pointId].multi.reduce(
+              (prev, curr) => prev + curr.deduct,
+              0
+            );
+          addMessageToProgress(`Updating ${index} - ${hakbun}`);
+          await firestoreDoc
+            .collection("students")
+            .doc(hakbun)
+            .set(updatingStudent);
+          addMessageToProgress(
+            `Completed ${index} - ${hakbun}`,
+            ((2 + index) / totalSteps) * 100
+          );
+        }
 
-      const newGradeInfo = { ...gradeInfo };
-      newGradeInfo.points[pointIndex] = point;
-      await firestoreDoc.set(newGradeInfo);
-      addMessageToProgress("Updated GradeInfo", (1 / totalSteps) * 100);
+        // Last Reload the page
+        addMessageToProgress("Finished", 100);
+      } catch (e) {
+        console.error(e);
+        addMessageToProgress("ERROR: " + e.toString(), 100);
+      } finally {
+        addMessageToProgress("Done.", 100);
+      }
+    } else {
+      point.name = changedValue.pointname;
+      deduct.desc = changedValue.deductdesc;
+      deduct.deduct = changedValue.deductdeduct;
+      deduct.point = +Number.parseFloat(point.point - deduct.deduct).toFixed(2);
 
-      // TODO: If deduct data is same, no need to update.
-
-      // Update Students Information
-      for (let index = 0; index < needToUpdateStudent.length; index++) {
-        const hakbun = needToUpdateStudent[index];
-
-        const updatingStudent = { ...studentInfo[hakbun] };
-        updatingStudent.points[pointId] = deduct;
-        addMessageToProgress(`Updating ${index} - ${hakbun}`);
-        await firestoreDoc
-          .collection("students")
-          .doc(hakbun)
-          .set(updatingStudent);
-        addMessageToProgress(
-          `Completed ${index} - ${hakbun}`,
-          ((2 + index) / totalSteps) * 100
-        );
+      const foundIndex = point.deducts.findIndex(
+        (elem) => elem.uuid === deduct.uuid
+      );
+      if (foundIndex > 0) {
+        point.deducts[foundIndex] = deduct;
       }
 
-      // Last Reload the page
-      addMessageToProgress("Finished", 100);
-      // window.location.reload();
-    } catch (e) {
-      console.error(e);
-      addMessageToProgress("ERROR: " + e.toString(), 100);
-    } finally {
-      addMessageToProgress("Done.", 100);
+      console.log(point, deduct);
+
+      // Ready to Save
+      const pointIndex = gradeInfo.points.findIndex(
+        (p) => p.pointId === pointId
+      );
+      const firestoreDoc = firebaseApp
+        .firestore()
+        .collection("grades")
+        .doc(prop.match.params.gradeID);
+
+      try {
+        if (pointIndex === -1) throw new Error("Update Point Not Found!");
+
+        // Need to update this amount of people
+        const needToUpdateStudent = deducter[`${pointId}-${deduct.uuid}`];
+        const totalSteps = (needToUpdateStudent || []).length + 1;
+        addMessageToProgress("Total Steps: " + totalSteps);
+
+        const newGradeInfo = { ...gradeInfo };
+        newGradeInfo.points[pointIndex] = point;
+        await firestoreDoc.set(newGradeInfo);
+        addMessageToProgress("Updated GradeInfo", (1 / totalSteps) * 100);
+
+        // TODO: If deduct data is same, no need to update.
+
+        // Update Students Information
+        for (let index = 0; index < needToUpdateStudent.length; index++) {
+          const hakbun = needToUpdateStudent[index];
+
+          const updatingStudent = { ...studentInfo[hakbun] };
+          updatingStudent.points[pointId] = deduct;
+          addMessageToProgress(`Updating ${index} - ${hakbun}`);
+          await firestoreDoc
+            .collection("students")
+            .doc(hakbun)
+            .set(updatingStudent);
+          addMessageToProgress(
+            `Completed ${index} - ${hakbun}`,
+            ((2 + index) / totalSteps) * 100
+          );
+        }
+
+        // Last Reload the page
+        addMessageToProgress("Finished", 100);
+        // window.location.reload();
+      } catch (e) {
+        console.error(e);
+        addMessageToProgress("ERROR: " + e.toString(), 100);
+      } finally {
+        addMessageToProgress("Done.", 100);
+      }
     }
   };
 
@@ -289,9 +364,55 @@ function GradeView(prop) {
                             style={index % 2 ? { backgroundColor: "#eee" } : {}}
                             key={`${point.pointId}-${mult.reason}`}
                           >
-                            <TableCell>(Multi) {point.name}</TableCell>
+                            <TableCell>
+                              {changing === "" ? (
+                                <IconButton
+                                  name={`afd`}
+                                  size="small"
+                                  aria-label="edit"
+                                  onClick={() =>
+                                    startEditMode(
+                                      `${point.pointId}-${mult.reason}`,
+                                      point,
+                                      mult
+                                    )
+                                  }
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+                              ) : (
+                                changing ===
+                                  `${point.pointId}-${mult.reason}` && (
+                                  <IconButton
+                                    aria-label="done"
+                                    size="small"
+                                    onClick={() => {
+                                      finishEditMode(
+                                        point.pointId,
+                                        point,
+                                        mult
+                                      );
+                                    }}
+                                  >
+                                    <DoneIcon fontSize="small" />
+                                  </IconButton>
+                                )
+                              )}
+                              <span>(Multi) {point.name}</span>
+                            </TableCell>
                             <TableCell>{mult.reason}</TableCell>
-                            <TableCell align="center">{mult.deduct}</TableCell>
+                            <TableCell align="center">
+                              {changing ===
+                              `${point.pointId}-${mult.reason}` ? (
+                                <TextField
+                                  name="deductdeduct"
+                                  onChange={changeEditField}
+                                  value={changedValue.deductdeduct}
+                                />
+                              ) : (
+                                mult.deduct
+                              )}
+                            </TableCell>
                             <TableCell align="center">
                               {Object.values(studentInfo)
                                 .map((student) => {
