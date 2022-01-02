@@ -5,6 +5,12 @@ import { firebaseApp } from "../lib/firebaseApp";
 
 import "./Grade.css";
 
+function multiDeductReasonJoin(deducts) {
+  return (
+    " " + deducts.map((item) => `(-${item.deduct}) ${item.reason}`).join(", ")
+  );
+}
+
 function GradeDownload(prop) {
   const [gradeInfo, setGradeInfo] = useState({});
   const [studentInfo, setStudentInfo] = useState({});
@@ -28,11 +34,14 @@ function GradeDownload(prop) {
         const stuGrd = [student.hakbun];
         headerGrade.map((gpoint) => {
           const pointItem = student.points[gpoint.pointId];
+          console.log({ pointItem });
           stuGrd.push(
             typeof pointItem === "object"
               ? `${pointItem.point}${
                   giveReason && pointItem.uuid !== 0
-                    ? ` (${pointItem.desc})`
+                    ? !!pointItem.multi
+                      ? multiDeductReasonJoin(pointItem.multi)
+                      : ` (${pointItem.desc})`
                     : ""
                 }`
               : ""
