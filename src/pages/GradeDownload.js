@@ -32,6 +32,19 @@ function GradeDownload(prop) {
     Object.values(studentInfo).map((student) => {
       if (student.points) {
         const stuGrd = [student.hakbun];
+        // 총점
+        stuGrd.push(
+          Number.parseFloat(
+            Object.values(student.points).reduce((prev, curr) => {
+              return prev + +(curr.point || 0);
+            }, 0) * (student.late ? 1 - gradeInfo.late_deduct : 1)
+          ).toFixed(2)
+        );
+        // 지각
+        stuGrd.push(
+          student.late ? `(${(gradeInfo.late_deduct || 0) * 100}%)` : ""
+        );
+        // 나머지 점수
         headerGrade.map((gpoint) => {
           const pointItem = student.points[gpoint.pointId];
           console.log({ pointItem });
@@ -48,17 +61,6 @@ function GradeDownload(prop) {
           );
           return null;
         });
-        stuGrd.push(
-          student.late ? `(${(gradeInfo.late_deduct || 0) * 100}%)` : ""
-        );
-        // 총점
-        stuGrd.push(
-          Number.parseFloat(
-            Object.values(student.points).reduce((prev, curr) => {
-              return prev + +(curr.point || 0);
-            }, 0) * (student.late ? 1 - gradeInfo.late_deduct : 1)
-          ).toFixed(2)
-        );
         printGrade.push(stuGrd);
       }
       return null;
@@ -122,9 +124,9 @@ function GradeDownload(prop) {
         data={[
           [
             "hakbun",
-            ...Object.values(headerGrade).map((header) => header.name),
-            "late",
             "total",
+            "late",
+            ...Object.values(headerGrade).map((header) => header.name),
           ],
           ...printGrade,
         ]}
