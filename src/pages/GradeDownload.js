@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Checkbox, FormControlLabel } from "@material-ui/core";
 import { CSVLink } from "react-csv";
 import { firebaseApp } from "../lib/firebaseApp";
 
@@ -10,6 +11,7 @@ function GradeDownload(prop) {
   // const [errors /*, setErrors*/] = useState([]);
   const [headerGrade, setHeaderGrade] = useState({});
   const [printGrade, setPrintGrade] = useState([]);
+  const [giveReason, setGiveReason] = useState(false);
 
   useEffect(() => {
     if (!gradeInfo || Object.keys(gradeInfo).length === 0) return;
@@ -29,7 +31,9 @@ function GradeDownload(prop) {
           stuGrd.push(
             typeof pointItem === "object"
               ? `${pointItem.point}${
-                  pointItem.uuid !== 0 ? ` (${pointItem.desc})` : ""
+                  giveReason && pointItem.uuid !== 0
+                    ? ` (${pointItem.desc})`
+                    : ""
                 }`
               : ""
           );
@@ -52,7 +56,7 @@ function GradeDownload(prop) {
     });
     console.log(printGrade);
     setPrintGrade(printGrade);
-  }, [gradeInfo, studentInfo]);
+  }, [gradeInfo, studentInfo, giveReason]);
 
   useEffect(() => {
     const firestoreDoc = firebaseApp
@@ -94,6 +98,16 @@ function GradeDownload(prop) {
     <h1>Error</h1>
   ) : (
     <div className="GradeDownload">
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={giveReason}
+            onChange={(e) => setGiveReason(e.target.checked)}
+          />
+        }
+        label="감점사유 포함"
+      />
+      <br />
       <CSVLink
         filename={`${prop.match.params.gradeID}.csv`}
         data={[
